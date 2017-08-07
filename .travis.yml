@@ -1,0 +1,19 @@
+dist: trusty
+language: python
+python:
+  - '2.7'
+  - '3.5'
+  - '3.6'
+services:
+  - redis-server
+install:
+  - pip install .
+  - pip install -r requirements-unittests.txt
+  - cp -n tests/settings.py.dist tests/settings.py
+script: python manage.py test
+deploy:
+  on:
+    branch: master
+  provider: pypi
+  distributions: "sdist bdist_wheel"
+  user: efl_phx

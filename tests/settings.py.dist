@@ -1,0 +1,52 @@
+"""
+Minimum Django settings needed to get unit tests to run.
+
+See `README.rst` for instructions on how to run unit tests.
+"""
+
+import os
+from tempfile import mkdtemp
+from uuid import uuid4
+
+##
+# Stuff in this part of the file probably needs to be changed.
+#
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': '127.0.0.1:6379',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'DB':           1,
+        },
+    },
+}
+
+##
+# Stuff in this part of the file probably does not need to be changed.
+#
+DEBUG = True
+SECRET_KEY = uuid4().hex
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOG_ROOT = mkdtemp()
+
+EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+INSTALLED_APPS = ['triggers', 'tests',]
+TEST_RUNNER = 'django_nose.runner.NoseTestSuiteRunner'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {},
+    },
+]
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(LOG_ROOT, 'db.sqlite3'),
+    }
+}
