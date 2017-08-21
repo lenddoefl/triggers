@@ -1,3 +1,8 @@
+.. include:: ../README.rst
+
+Contents
+========
+
 .. toctree::
    :maxdepth: 1
 
@@ -13,4 +18,4 @@
    backends
    testing
 
-.. include:: ../README.rst
+
