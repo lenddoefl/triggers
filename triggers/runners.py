@@ -172,6 +172,9 @@ def resolve_celery_task(target, autoload=True):
         Whether to trigger the Celery app's task loader (if needed).
     """
     if autoload:
+        # Ensure any pending decorators are resolved.
+        current_app.finalize()
+
         try:
             return current_app.tasks[target]
         except KeyError:
