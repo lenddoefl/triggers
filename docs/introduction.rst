@@ -1,7 +1,7 @@
 ============
 Introduction
 ============
-The Triggers framework is a distributed implementation of the
+The Triggers framework is essentially a distributed implementation of the
 `Observer pattern`_.  It keeps track of "triggers" that your application fires,
 and schedules asynchronous tasks to run in response.
 
@@ -26,10 +26,10 @@ The Triggers framework may be a good fit for your application if:
   conditions will be met.
 
 For example, suppose you have a survey application, and you want to schedule an
-asynchronous task to run after steps 1 and 4 are received from the client.
+asynchronous task to run after modules 1 and 4 are received from the client.
 
-However, because of the way the internet works, step 4 might never arrive, or
-perhaps the two steps arrive out-of-order, or even at the same time.
+However, because of the way the internet works, module 4 might never arrive, or
+perhaps the two modules arrive out-of-order, or even at the same time.
 
 The Triggers framework would be a good fit for this application.
 
@@ -44,18 +44,18 @@ If your application:
 then the Triggers framework might be overkill.
 
 For example, using the survey application from the previous section, suppose
-that the client always sent the data for steps 1 and 4 in the same web service
+that the client always sent the data for modules 1 and 4 in the same web service
 request.
 
 In this case, you wouldn't need to use the Triggers framework because your
-application would not need to keep track of which steps were received across
+application would not need to keep track of which modules were received across
 multiple web service requests.
 
 =============
 Configuration
 =============
 Let's go back to the example survey application, and see how we might configure
-the Triggers framework to execute an asynchronous task after steps 1 and 4 are
+the Triggers framework to execute an asynchronous task after modules 1 and 4 are
 received:
 
 .. code-block:: javascript
@@ -66,7 +66,7 @@ received:
 
        // This task runs after these two triggers are fired.
        // Note that order doesn't matter here.
-       "after": ["step1Received", "step4Received"],
+       "after": ["module1Received", "module4Received"],
 
        // Specify the celery task to run when the above conditions are
        // met.
