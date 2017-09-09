@@ -5,12 +5,13 @@ from __future__ import absolute_import, division, print_function, \
 from abc import ABCMeta, abstractmethod as abstract_method
 from distutils.version import LooseVersion
 from threading import Thread, current_thread
-from typing import Callable, Dict, List, Text, Union
+from typing import Any, Dict, List, Text, Union
 from uuid import uuid4
 
 from celery import current_app
 from celery.app.trace import trace_task
 from celery.result import AsyncResult, EagerResult
+from celery.task import Task
 from class_registry import EntryPointClassRegistry
 from django import get_version
 from django.core.exceptions import ImproperlyConfigured
@@ -161,7 +162,7 @@ def autodiscover_celery_tasks():
 
 
 def resolve_celery_task(target, autoload=True):
-    # type: (Text, bool) -> TriggerTask
+    # type: (Text, bool) -> Union[TriggerTask, Task]
     """
     Given the name of a Celery task, looks up the corresponding class.
 
@@ -308,7 +309,7 @@ class ThreadingTaskRunner(BaseTaskRunner):
 
     def run(self, manager, task_instance):
         # type: (TriggerManager, TaskInstance) -> None
-        task = self.resolve(task_instance.config.run) # type: TriggerTask
+        task = self.resolve(task_instance.config.run)
 
         #
         # Wrap the task inside a function that simulates a real Celery
@@ -400,9 +401,10 @@ class ThreadingTaskRunner(BaseTaskRunner):
         thread.start()
 
     def resolve(self, target):
+        # type: (Any) -> Union[TriggerTask, Task]
         if isinstance(target, string_types):
             try:
-                target = dl(target) # type: Callable[]
+                target = dl(target)
             except ImproperlyConfigured as e:
                 # Maybe instead of a classpath, it's the name of a
                 # registered Celery task.
@@ -426,6 +428,15 @@ class ThreadingTaskRunner(BaseTaskRunner):
                     runner      = type(self).__name__,
                 ),
             )
+
+        # Ensure that the task is bound to the current app (normally
+        # Celery would handle this for us, but since we're bypassing
+        # Celery here....).
+        #
+        # Note that we only do this if the task isn't already bound,
+        # just in case the task's ``on_bound`` method isn't idempotent.
+        if not target.__bound__:
+            target.bind(current_app)
 
         return target
 
