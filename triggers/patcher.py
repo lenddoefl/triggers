@@ -6,6 +6,11 @@ from abc import ABCMeta, abstractmethod as abstract_method
 
 from six import iteritems, with_metaclass
 
+__all__ = [
+    'AttrPatcher',
+    'BasePatcher',
+]
+
 
 class BasePatcher(with_metaclass(ABCMeta)):
     """

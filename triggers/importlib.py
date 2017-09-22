@@ -8,6 +8,10 @@ from typing import Any
 
 from six import PY2, binary_type, string_types, text_type, reraise
 
+__all__ = [
+    'dl',
+]
+
 
 def dl(classpath):
     # type: (string_types) -> Any

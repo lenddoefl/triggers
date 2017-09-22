@@ -11,6 +11,12 @@ from six import itervalues
 from triggers.storage_backends.base import TriggerStorageBackend
 from triggers.types import TaskConfig, TaskInstance
 
+__all__ = [
+    'TriggerManager',
+    'trigger_managers',
+]
+
+
 trigger_managers =\
     EntryPointClassRegistry(
         attr_name   = 'triggers__registry_key',

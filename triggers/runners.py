@@ -24,6 +24,17 @@ from triggers.storage_backends.base import storage_backends
 from triggers.task import TriggerTask
 from triggers.types import TaskInstance
 
+__all__ = [
+    'BaseTaskRunner',
+    'CeleryTaskRunner',
+    'DEFAULT_TASK_RUNNER',
+    'ThreadingTaskRunner',
+    'autodiscover_celery_tasks',
+    'resolve_celery_task',
+    'task_runners',
+]
+
+
 task_runners =\
     EntryPointClassRegistry(
         attr_name   = 'triggers__registry_key',

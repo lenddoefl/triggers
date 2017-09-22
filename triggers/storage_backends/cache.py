@@ -9,6 +9,10 @@ from django.core.cache import DEFAULT_CACHE_ALIAS
 from triggers.locking import resolve_cache
 from triggers.storage_backends.base import TriggerStorageBackend
 
+__all__ = [
+    'CacheBackend',
+]
+
 
 class CacheBackend(TriggerStorageBackend):
     """

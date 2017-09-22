@@ -10,6 +10,11 @@ from six import iterkeys, python_2_unicode_compatible
 
 from triggers.itertools import merge_dict
 
+__all__ = [
+    'TaskConfig',
+    'TaskInstance',
+]
+
 
 @python_2_unicode_compatible
 class TaskConfig(object):

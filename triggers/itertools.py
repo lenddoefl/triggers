@@ -6,6 +6,11 @@ from typing import Mapping
 
 from six import iteritems
 
+__all__ = [
+    'merge_dict',
+    'merge_dict_recursive',
+]
+
 
 def merge_dict(*dicts):
     # type: (*Mapping) -> dict

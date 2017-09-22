@@ -23,6 +23,15 @@ from triggers.manager import TriggerManager, trigger_managers
 from triggers.storage_backends.base import storage_backends
 from triggers.types import TaskInstance
 
+__all__ = [
+    'MaxRetriesExceeded',
+    'Retry',
+    'StatusChange',
+    'TaskContext',
+    'TriggerTask',
+    'task_body',
+]
+
 
 class TaskContext(object):
     """

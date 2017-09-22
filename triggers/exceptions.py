@@ -4,6 +4,10 @@ from __future__ import absolute_import, division, print_function, \
 
 from typing import MutableMapping
 
+__all__ = [
+    'with_context',
+]
+
 
 def with_context(exc, context):
     # type: (Exception, dict) -> Exception

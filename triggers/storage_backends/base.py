@@ -13,6 +13,13 @@ from six import iteritems, itervalues, with_metaclass
 from triggers.locking import Lockable
 from triggers.types import TaskConfig, TaskInstance
 
+__all__ = [
+    'TaskInstanceCollection',
+    'TriggerStorageBackend',
+    'storage_backends',
+]
+
+
 storage_backends =\
     EntryPointClassRegistry(
         attr_name   = 'triggers__registry_key',

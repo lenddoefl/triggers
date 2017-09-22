@@ -16,6 +16,16 @@ from triggers.patcher import AttrPatcher
 from triggers.task import TaskContext, TriggerTask
 from triggers.types import TaskInstance
 
+__all__ = [
+    'DevNullTask',
+    'FailingTask',
+    'PassThruTask',
+    'SelfRetryingTask',
+    'SelfSkippingTask',
+    'TriggerManagerTestCaseMixin',
+    'name_matches_classpath',
+]
+
 
 def name_matches_classpath(cls):
     """

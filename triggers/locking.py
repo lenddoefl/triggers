@@ -17,6 +17,13 @@ from six import with_metaclass
 
 from triggers.patcher import AttrPatcher
 
+__all__ = [
+    'LockAcquisitionFailed',
+    'Lockable',
+    'NotSupported',
+    'acquire_lock',
+]
+
 
 class LockAcquisitionFailed(RuntimeError):
     """
