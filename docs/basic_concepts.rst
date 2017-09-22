@@ -74,19 +74,21 @@ database.
 
 Tasks
 =====
-It's all fine and good to fire triggers, but in order to accomplish anything,
-you've got to have tasks that run in response to those triggers!
+Firing triggers is fun and all, but the whole point here is to execute Celery
+tasks in response to those triggers!
 
-Configuration
--------------
-Unlike triggers, tasks do not live in your application code (or at least, not
-directly).  Instead, tasks are defined in your trigger configuration.
+This is where trigger tasks come into play.
 
-We'll explore where the trigger configuration lives in the :doc:`Usage </usage>`
-section; for now, we'll just focus on what the configuration looks like.
+A trigger task acts like a wrapper for a Celery task:
 
+- The Celery task does the actual work.
+- The trigger task defines the conditions that will cause the Celery task to
+  get executed.
+
+Task Configurations
+-------------------
 Here's an example trigger configuration that defines two tasks, named
-`t_createApplicant` and `t_computePsychometricScore`:
+`t_createApplicant` and `t_computeScore`:
 
 .. code-block:: javascript
 
@@ -96,20 +98,47 @@ Here's an example trigger configuration that defines two tasks, named
        "run": "applicant_journey.tasks.Import_CreateApplicant"
      },
 
-     "t_computePsychometricScore": {
+     "t_computeScore": {
        "after": ["t_createApplicant", "sessionFinalized"],
        "run": "applicant_journey.tasks.Score_ComputePsychometric"
      }
    }
 
-There's a lot more to configuration than this; we'll explore what you can do
-with task configuration in the :doc:`Configuration </configuration>` section.
+We can translate the above configuration into English like this::
 
-todo: a diagram would be really helpful
+   Trigger Task "t_createApplicant":
+     After the "startSession" and "observationsReceived" triggers fire,
+     Run the "Import_CreateApplicant" Celery task.
 
-- instances
-- cascading
+   Trigger Task "t_computeScore":
+     After the "t_createApplicant" and "sessionFinalized" triggers fire,
+     Run the "Score_ComputePsychometric" Celery task.
 
+We'll explore what this all means in the :doc:`/configuration`
+section.
+
+.. note::
+
+   Did you notice that one of the triggers for ``t_computeScore`` (inside its
+   ``after`` attribute) is the name of another trigger task
+   (``t_createApplication``)?
+
+   This takes advantage of a feature called `cascading`, where a trigger task
+   fires its own name as a trigger when its Celery task finishes successfully.
+
+   In this way, you can "chain" trigger tasks together.
+
+   We will cover cascading in more detail in :doc:`/configuration`.
+
+Task Instances
+--------------
+In certain cases, a task may run multiple times.  To accommodate this, the
+Triggers framework creates a separate task instance for each execution of a
+task.
+
+Each task instance is named after its task configuration, with an incrementing
+sequence number (e.g., ``t_createApplicant#0``,
+``t_computeScore#0``, etc.).
 
 Trigger Managers
 ================
