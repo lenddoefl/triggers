@@ -10,16 +10,16 @@ from triggers.locking import resolve_cache
 from triggers.storage_backends.base import TriggerStorageBackend
 
 __all__ = [
-    'CacheBackend',
+    'CacheStorageBackend',
 ]
 
 
-class CacheBackend(TriggerStorageBackend):
+class CacheStorageBackend(TriggerStorageBackend):
     """
     Uses the Django cache as a storage backend for TriggerManager.
     """
     def __init__(self, uid):
-        super(CacheBackend, self).__init__(uid)
+        super(CacheStorageBackend, self).__init__(uid)
 
         self.cache = resolve_cache(DEFAULT_CACHE_ALIAS)
 

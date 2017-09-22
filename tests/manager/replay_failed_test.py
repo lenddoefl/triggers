@@ -7,7 +7,7 @@ from unittest import TestCase
 from triggers.manager import TriggerManager, trigger_managers
 from triggers.runners import ThreadingTaskRunner
 from triggers.storage_backends.base import storage_backends
-from triggers.storage_backends.cache import CacheBackend
+from triggers.storage_backends.cache import CacheStorageBackend
 from triggers.testing import FailingTask, PassThruTask, \
     TriggerManagerTestCaseMixin
 
@@ -19,7 +19,7 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
     def setUp(self):
         super(TriggerManagerReplayFailedTestCase, self).setUp()
 
-        storage = storage_backends.get('cache', uid=self._testMethodName) # type: CacheBackend
+        storage = storage_backends.get('cache', uid=self._testMethodName) # type: CacheStorageBackend
         storage.cache.clear()
 
         self.manager = trigger_managers.get('default', storage=storage) # type: TriggerManager

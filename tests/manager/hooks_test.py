@@ -7,7 +7,7 @@ from unittest import TestCase
 from triggers.manager import TriggerManager, trigger_managers
 from triggers.runners import ThreadingTaskRunner
 from triggers.storage_backends.base import storage_backends
-from triggers.storage_backends.cache import CacheBackend
+from triggers.storage_backends.cache import CacheStorageBackend
 from triggers.testing import DevNullTask, FailingTask, \
     TriggerManagerTestCaseMixin
 
@@ -46,7 +46,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
             def _post_skip(self, task_instance, cascade):
                 test.post_skip_calls.append((task_instance.name, cascade))
 
-        storage = storage_backends.get('cache', uid=self._testMethodName) # type: CacheBackend
+        storage = storage_backends.get('cache', uid=self._testMethodName) # type: CacheStorageBackend
         storage.cache.clear()
 
         # Temporarily inject our custom trigger manager into the

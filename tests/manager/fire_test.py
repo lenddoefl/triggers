@@ -8,7 +8,7 @@ from unittest import TestCase
 from triggers.manager import TriggerManager, trigger_managers
 from triggers.runners import ThreadingTaskRunner
 from triggers.storage_backends.base import storage_backends
-from triggers.storage_backends.cache import CacheBackend
+from triggers.storage_backends.cache import CacheStorageBackend
 from triggers.testing import DevNullTask, PassThruTask, \
     TriggerManagerTestCaseMixin
 from triggers.types import TaskInstance
@@ -22,7 +22,7 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
     def setUp(self):
         super(TriggerManagerFireTestCase, self).setUp()
 
-        storage = storage_backends.get('cache', uid=self._testMethodName) # type: CacheBackend
+        storage = storage_backends.get('cache', uid=self._testMethodName) # type: CacheStorageBackend
         storage.cache.clear()
 
         self.manager = trigger_managers.get('default', storage=storage) # type: TriggerManager
@@ -727,7 +727,7 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
 
         timestamp = datetime(2017, 3, 13, 12, 22, 47)
 
-        with self.manager.storage.acquire_lock() as writable_storage: # type: CacheBackend
+        with self.manager.storage.acquire_lock() as writable_storage: # type: CacheStorageBackend
             instance =\
                 writable_storage.create_instance(
                     task_config = writable_storage.tasks['t_alpha'],

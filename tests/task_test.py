@@ -7,7 +7,7 @@ from unittest import TestCase
 from triggers.manager import TriggerManager
 from triggers.patcher import AttrPatcher
 from triggers.runners import ThreadingTaskRunner
-from triggers.storage_backends.cache import CacheBackend
+from triggers.storage_backends.cache import CacheStorageBackend
 from triggers.task import MaxRetriesExceeded
 from triggers.testing import SelfRetryingTask, SelfSkippingTask, \
     TriggerManagerTestCaseMixin
@@ -27,7 +27,7 @@ class TriggerTaskTestCase(TriggerManagerTestCaseMixin, TestCase):
         super(TriggerTaskTestCase, self).setUp()
 
         self.manager =\
-            TriggerManager(CacheBackend(self._testMethodName))
+            TriggerManager(CacheStorageBackend(self._testMethodName))
 
     def test_skip_self(self):
         """

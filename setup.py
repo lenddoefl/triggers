@@ -45,7 +45,7 @@ setup(
 
     entry_points = {
         'triggers.storage_backends': [
-            'cache=triggers.storage_backends.cache:CacheBackend',
+            'cache=triggers.storage_backends.cache:CacheStorageBackend',
         ],
 
         'triggers.managers': [
