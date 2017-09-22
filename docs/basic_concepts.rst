@@ -140,11 +140,45 @@ Each task instance is named after its task configuration, with an incrementing
 sequence number (e.g., ``t_createApplicant#0``,
 ``t_computeScore#0``, etc.).
 
+Sessions
+========
+A session acts as a container for triggers and trigger task instances.  This
+allows you to maintain multiple states in isolation from each other.
+
+For example, if you maintain a survey application, each survey would have its
+own session.  This way, any triggers fired while processing a particular survey
+would not interfere with any other surveys.
+
+Session UIDs
+------------
+Each session should have a unique identifier (UID).  This value is provided to
+the storage backend at initialization, so that the trigger manager can load the
+saved state for that session.
+
 Trigger Managers
 ================
-- trigger manager
-- storage backend
+The trigger manager acts as the controller for the Triggers framework.  It is
+responsible for firing triggers, managing trigger task instances, and so on.
 
+To interact with the Triggers framework in your application, create an instance
+of the trigger manager class, like this:
+
+.. code-block:: python
+
+   from triggers import CacheStorageBackend, TriggerManager
+
+   # Specify the session UID.
+   sessionUid = '...'
+
+   # Create the trigger manager instance.
+   trigger_manager = TriggerManager(CacheStorageBackend(sessionUid))
+
+   # Fire triggers.
+   trigger_manager.fire('ventCoreFrogBlasted')
+
+Storage Backends
+----------------
+:todo:
 
 .. _observer pattern: https://en.wikipedia.org/wiki/Observer_pattern
 .. _task_serializer: http://docs.celeryproject.org/en/latest/userguide/calling.html#serializers
