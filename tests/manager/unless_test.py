@@ -128,3 +128,37 @@ class TriggerManagerUnlessTestCase(TriggerManagerTestCaseMixin, TestCase):
         # is not marked as abandoned.
         self.assertInstanceFinished('t_alpha#0', {})
         self.assertInstanceAbandoned('t_alpha#1')
+
+    def test_abandoned_clone(self):
+        """
+        Creating a copy of an existing task instance should also copy
+        its abandon state.
+        """
+        self._configure_tasks({
+            't_alpha': {
+                'run':      DevNullTask.name,
+                'after':    ['dataReceived'],
+                'unless':   ['e_bureauCheck', '__finalizedWithoutSteps'],
+            },
+        })
+
+        self.manager.fire('__finalizedWithoutSteps')
+        ThreadingTaskRunner.join_all()
+        # Abandonment criteria not satisfied yet; instance is not
+        # abandoned.
+        self.assertInstanceUnstarted('t_alpha#0')
+
+        # Create a copy of the instance.
+        with self.manager.storage.acquire_lock() as writable_storage: # type: CacheBackend
+            writable_storage.clone_instance(writable_storage['t_alpha#0'])
+            writable_storage.save()
+
+        # Quick sanity check.
+        self.assertInstanceUnstarted('t_alpha#1')
+
+        self.manager.fire('e_bureauCheck')
+        ThreadingTaskRunner.join_all()
+
+        # The cloned instance inherited its parent's abandon state.
+        self.assertInstanceAbandoned('t_alpha#0')
+        self.assertInstanceAbandoned('t_alpha#1')

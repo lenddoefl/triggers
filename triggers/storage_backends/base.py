@@ -226,8 +226,9 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
             The cloned task instance.
         """
         return self.create_instance(
-            kwargs      = task_instance.kwargs,
-            task_config = task_instance.config,
+            abandonState    = task_instance.abandon_state,
+            kwargs          = task_instance.kwargs,
+            task_config     = task_instance.config,
 
             metadata = {
                 TaskInstance.META_DEPTH:  task_instance.depth + 1,
