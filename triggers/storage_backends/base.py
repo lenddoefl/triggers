@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, print_function, \
 from abc import ABCMeta, abstractmethod as abstract_method
 from collections import defaultdict
 from contextlib import contextmanager as context_manager
-from typing import Dict, Iterable, Optional, Text, Tuple, Union
+from typing import Dict, Iterable, Optional, Text, Tuple, Union, Any
 
 from class_registry import EntryPointClassRegistry
 from six import iteritems, itervalues, with_metaclass
@@ -236,9 +236,12 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
         )
 
     def create_instance(self, task_config, **kwargs):
-        # type: (TaskConfig, ...) -> TaskInstance
+        # type: (TaskConfig, **Any) -> TaskInstance
         """
         Installs a new :py:class:`TaskInstance`.
+
+        :type task_config:
+            The configuration that the new instance will use.
 
         :param kwargs:
             Additional kwargs to provide to the TaskInstance
@@ -354,6 +357,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
                 **raw_status
             )
 
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def _serialize(self, dict_, optimize_for_backend=True):
         # type: (Union[Dict[Text, TaskConfig], TaskInstance], bool) -> dict
         """
@@ -396,9 +400,12 @@ class TaskInstanceCollection(dict):
         return self._collections.get(task_config.name, {})
 
     def create_instance(self, config, name=None, **kwargs):
-        # type: (TaskConfig, Optional[Text], ...) -> TaskInstance
+        # type: (TaskConfig, Optional[Text], **Any) -> TaskInstance
         """
         Creates a new TaskInstance.
+
+        :param config:
+            The configuration that the new instance will use.
 
         :param name:
             Instance name.  Will be auto-assigned if omitted.

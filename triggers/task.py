@@ -39,15 +39,14 @@ class TaskContext(object):
     """
     def __init__(
             self,
-            instance_name,
-            manager_type,
-            storage_type,
-            storage_uid,
-            trigger_kwargs,
-            extra_args,
-            extra_kwargs
+            instance_name,  # type: Text
+            manager_type,   # type: Text
+            storage_type,   # type: Text
+            storage_uid,    # type: Text
+            trigger_kwargs, # type: dict
+            extra_args,     # type: tuple
+            extra_kwargs    # type: dict
     ):
-        # type: (Text, Text, Text, Text, Text, dict, tuple, dict) -> None
         self.instance_name  = instance_name
         self.manager_type   = manager_type
         self.storage_type   = storage_type
@@ -286,15 +285,15 @@ def task_body(target):
     """
     @wraps(target)
     def decorated_task(
-            instance_name,
-            manager_type,
-            storage_type,
-            storage_uid,
-            trigger_kwargs,
+            instance_name,  # type: Text
+            manager_type,   # type: Text
+            storage_type,   # type: Text
+            storage_uid,    # type: Text
+            trigger_kwargs, # type: dict
             *args,
             **kwargs
     ):
-        # type: (Text, Text, Text, Text, Text, dict, ...) -> Mapping
+        # type: (...) -> Mapping
         context =\
             TaskContext(
                 instance_name,
@@ -430,15 +429,15 @@ class TriggerTask(current_app.Task):
 
     def run(
             self,
-            instance_name,
-            manager_type,
-            storage_type,
-            storage_uid,
-            trigger_kwargs,
+            instance_name,  # type: Text
+            manager_type,   # type: Text
+            storage_type,   # type: Text
+            storage_uid,    # type: Text
+            trigger_kwargs, # type: dict
             *args,
             **kwargs
     ):
-        # type: (Text, Text, Text, Text, Text, dict, ...) -> Optional[Mapping]
+        # type: (...) -> Optional[Mapping]
         """
         Main task body.
 
