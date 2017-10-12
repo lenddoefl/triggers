@@ -178,7 +178,14 @@ of the trigger manager class, like this:
 
 Storage Backends
 ----------------
-:todo:
+To maintain state across multiple processes, the trigger manager relies on a
+storage backend.
+
+The storage backend is responsible for loading and storing the session state.
+
+The Triggers framework comes bundled with a cache storage backend, which stores
+session state using Django's cache.  Additional backends will be added in future
+versions of the library.
 
 .. _observer pattern: https://en.wikipedia.org/wiki/Observer_pattern
 .. _task_serializer: http://docs.celeryproject.org/en/latest/userguide/calling.html#serializers
