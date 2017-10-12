@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, print_function, \
 from typing import Text, Tuple
 
 from django.core.cache import DEFAULT_CACHE_ALIAS
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
 from triggers.locking import resolve_cache
 from triggers.storage_backends.base import TriggerStorageBackend
@@ -18,10 +19,11 @@ class CacheStorageBackend(TriggerStorageBackend):
     """
     Uses the Django cache as a storage backend for TriggerManager.
     """
-    def __init__(self, uid):
+    def __init__(self, uid, timeout=DEFAULT_TIMEOUT):
         super(CacheStorageBackend, self).__init__(uid)
 
         self.cache = resolve_cache(DEFAULT_CACHE_ALIAS)
+        self.timeout = timeout
 
     def close(self, **kwargs):
         """
@@ -57,16 +59,18 @@ class CacheStorageBackend(TriggerStorageBackend):
         self.cache.set(
             self.task_config_cache_key,
             self._serialize(self._configs),
+            self.timeout,
         )
 
         self.cache.set(
             self.task_status_cache_key,
             self._serialize(self._instances),
+            self.timeout,
         )
 
         # Meta-status is a dict of primitives and does not need extra
         # serialization.
-        self.cache.set(self.meta_status_cache_key, self._metas)
+        self.cache.set(self.meta_status_cache_key, self._metas, self.timeout)
 
     @property
     def task_config_cache_key(self):
