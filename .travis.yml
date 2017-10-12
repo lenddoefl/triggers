@@ -12,10 +12,11 @@ install:
   - cp -n tests/settings.py.dist tests/settings.py
 script: python manage.py test
 deploy:
-  on:
-    branch: master
+- on:
+    python: '3.6'
+    tags: true
   provider: pypi
-  distributions: sdist bdist_wheel
+  distributions: 'bdist_wheel sdist'
   user: efl_phx
   password:
     secure: A+iKXEh3or0OJQ6/1iW767dGKyJHIfsz/ULhyiy0JvCGpfZUN5vqQNLTLwUD3k6Egu+PJVoF+7z7BWmsF0Nn/eyWwv8kgnR2rJVUu+wIZ/LvvaErscfC3VggXvniqCE7YXZ3kuJ5KIalwXxOPuWnzU8EB6gOAvcwckliNaVOVDOihhkl58kyUrTMTzijG195mMAV44H/wLBOr2i/DYArNILXnxAFEXq0Fb4tC80FuTZ1ikXmEwnvDjXqyVKlBoKHjxwa0OrHwG0dbulspWRwuWtLS3hdALKiIO6r6WoPC7Lf9GU0Ps+jt82xTV1GQ1TrOa/7B+GCaKUZvh8nTtS8P7J14naVZXl1T81XdIUu7qStwewTMjvYFVnt8XLwxVNdxKGG2BByUff3sWa9jlokxsnhpDU6LZJR30EVmGhIn/WH3Xe9nI/NYQxhUiUskivfwjF4YaO8IPRJErJOluiRDcvSIMLlok6nYlUjFvn6UyoKW1SHwbAdNq7pLpiQ7yrUX+sKYBhRIkKL0Obq5fdZdA+1gkhtv0D6v5Ps7x8pcW9sD0Ce2WEt/N5uFeYplVTlwZY9W4GXU+GgDgxH6zwtrzi+0EY4RpDFwFnx9ttR1WFP0ItmMlZaWED47cPUBoHcmenF+ldL+3iaCPjuIQxDWXewKpo6QEPi7ZJPz7NhTk0=
