@@ -2,9 +2,9 @@
 from __future__ import absolute_import, division, print_function, \
     unicode_literals
 
-from typing import Text, Tuple
+from typing import Optional, Text, Tuple, Union
 
-from django.core.cache import DEFAULT_CACHE_ALIAS
+from django.core.cache import BaseCache, DEFAULT_CACHE_ALIAS
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
 from triggers.locking import resolve_cache
@@ -19,10 +19,21 @@ class CacheStorageBackend(TriggerStorageBackend):
     """
     Uses the Django cache as a storage backend for TriggerManager.
     """
-    def __init__(self, uid, timeout=DEFAULT_TIMEOUT):
+    def __init__(self, uid, cache=DEFAULT_CACHE_ALIAS, timeout=DEFAULT_TIMEOUT):
+        # type: (Text, Union[BaseCache, Text], Optional[int]) -> None
+        """
+        :param uid:
+            Session UID
+
+        :param cache:
+            The cache backend (or name thereof) to use.
+
+        :param timeout:
+            Timeout value to use when storing data to the cache.
+        """
         super(CacheStorageBackend, self).__init__(uid)
 
-        self.cache = resolve_cache(DEFAULT_CACHE_ALIAS)
+        self.cache = resolve_cache(cache)
         self.timeout = timeout
 
     def close(self, **kwargs):
