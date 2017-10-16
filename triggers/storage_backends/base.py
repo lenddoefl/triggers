@@ -105,6 +105,19 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
             'Not implemented in {cls}.'.format(cls=type(self).__name__),
         )
 
+    # noinspection PyMethodMayBeStatic
+    def _load_default_configuration(self):
+        # type: () -> Optional[dict]
+        """
+        Loads the default configuration to use if the session does not
+        have an existing one stored in the backend.
+
+        :return:
+            Trigger task configuration (i.e., a value that could be
+            passed to :py:meth:`update_config`).
+        """
+        return None
+
     @abstract_method
     def _save(self):
         """
@@ -330,6 +343,9 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
 
             self._configs   = {}
             self._instances = TaskInstanceCollection()
+
+            if not raw_configs:
+                raw_configs = self._load_default_configuration()
 
             if raw_configs:
                 self._update_configs(raw_configs, raw_statuses)
