@@ -273,8 +273,8 @@ Here's an example of how our questionnaire application might fire the
 
 Step 5:  Initialize Configuration
 ---------------------------------
-Finally, you need to write the code that will initialize the configuration for
-each new session.
+Next, you need to write the code that will initialize the configuration for each
+new session.
 
 This is accomplished by invoking :py:meth:`TriggerManager.update_configuration`:
 
@@ -328,6 +328,18 @@ the start of the questionnaire application:
      })
 
      ...
+
+
+Step 6:  Write Celery Tasks
+---------------------------
+The final step is writing the Celery tasks.  These will look similar to normal
+Celery tasks, with a couple of differences:
+
+- The tasks must extend :py:class:`triggers.task.TriggerTask`.
+- Override the ``_run`` method instead of ``run`` (note the leading underscore).
+
+:todo: What does ``_run`` look like.
+:todo: Link to :doc:`tasks`.
 
 
 .. _celery already has you covered: http://docs.celeryproject.org/en/latest/userguide/canvas.html
