@@ -3,7 +3,7 @@
 
    introduction
    basic_concepts
-   usage
+   getting_started
    configuration
    tasks
    status
@@ -12,5 +12,6 @@
    runners
    backends
    testing
+   cookbook
 
 .. include:: ../README.rst
