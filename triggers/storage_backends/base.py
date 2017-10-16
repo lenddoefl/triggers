@@ -5,7 +5,8 @@ from __future__ import absolute_import, division, print_function, \
 from abc import ABCMeta, abstractmethod as abstract_method
 from collections import defaultdict
 from contextlib import contextmanager as context_manager
-from typing import Dict, Iterable, Optional, Text, Tuple, Union, Any
+from typing import Any, Dict, Iterable, Mapping, MutableMapping, Optional, \
+    Text, Tuple, Union
 
 from class_registry import EntryPointClassRegistry
 from six import iteritems, itervalues, with_metaclass
@@ -94,7 +95,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
 
     @abstract_method
     def _load_from_backend(self):
-        # type: () -> Tuple[dict, dict, dict]
+        # type: () -> Tuple[Mapping, Mapping, Mapping]
         """
         Loads configuration and status values from the backend.
 
@@ -107,7 +108,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
 
     # noinspection PyMethodMayBeStatic
     def _load_default_configuration(self):
-        # type: () -> Optional[dict]
+        # type: () -> Optional[Mapping]
         """
         Loads the default configuration to use if the session does not
         have an existing one stored in the backend.
@@ -159,7 +160,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
 
     @property
     def latest_kwargs(self):
-        # type: () -> Dict[Text, dict]
+        # type: () -> Dict[Text, Mapping]
         """
         Returns the most recent kwargs received for each trigger.
         """
@@ -179,7 +180,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
 
     @property
     def metadata(self):
-        # type: () -> dict
+        # type: () -> Mapping
         """
         Returns session metadata (status info not attached to
         individual tasks).
@@ -309,7 +310,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
         self._metas     = None
 
     def update_config(self, config_dict):
-        # type: (dict) -> None
+        # type: (Mapping[Text, Mapping]) -> None
         """
         Updates the configuration from a dict.
 
@@ -359,7 +360,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
             self._loaded = True
 
     def _update_configs(self, raw_configs, raw_statuses):
-        # type: (dict, dict) -> None
+        # type: (Mapping[Text, Mapping], Mapping[Text, MutableMapping]) -> None
         """
         Updates local task config cache.
         """

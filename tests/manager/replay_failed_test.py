@@ -29,7 +29,7 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
         Replaying a failed task (e.g., after fixing a problem with the
         stored data that caused the failure).
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    ['dataReceived'],
                 'run':      FailingTask.name,
@@ -50,7 +50,7 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
 
         # Simulate changing conditions that will cause the task to run
         # successfully when it is replayed.
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after': ['dataReceived'],
                 'run':   PassThruTask.name,
@@ -86,7 +86,7 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
         """
         Replaying a failed task with different kwargs.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    ['dataReceived'],
                 'run':      FailingTask.name,
@@ -109,7 +109,7 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
 
         # Simulate changing conditions that will cause the task to run
         # successfully when it is replayed.
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after': ['dataReceived'],
                 'run':   PassThruTask.name,
@@ -179,7 +179,7 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
         """
         Attempting to replay a task that didn't fail.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    ['dataReceived'],
                 'run':      PassThruTask.name,

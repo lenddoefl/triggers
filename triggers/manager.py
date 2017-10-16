@@ -41,6 +41,25 @@ class TriggerManager(object):
 
         self.storage = storage
 
+    def update_configuration(self, config):
+        # type: (Mapping[Text, Mapping]) -> None
+        """
+        Updates and persists the trigger configuration.
+
+        This is generally used at the start of a session to initialize
+        the trigger configuration, but it could also be used to update
+        the configuration of a session already in progress.
+
+        Important: the trigger manager will NOT apply previously-fired
+        triggers to the new configuration!
+
+        :param config:
+            Object containing trigger task definitions.
+        """
+        with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
+            writable_storage.update_config(config)
+            writable_storage.save()
+
     def fire(self, trigger_name, trigger_kwargs=None):
         # type: (Text, Optional[Mapping]) -> None
         """

@@ -64,7 +64,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         """
         Subclassing the trigger manager with a post-fire hook.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    ['targetAcquired'],
                 'run':      DevNullTask.name,
@@ -111,7 +111,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         Replaying a failed task instance does not trigger the post-fire
         hook.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_failingTask': {
                 'after':    ['fail'],
                 'run':      FailingTask.name,
@@ -155,7 +155,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         Skipping a failed task instance may trigger the post-fire hook
         if the skipped task cascades.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_failingTask': {
                 'after':    [],
                 'andEvery': 'fail',
@@ -215,7 +215,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         """
         Subclassing the trigger manager with a post-replay hook.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_failingTask': {
                 'after':    ['fail'],
                 'run':      FailingTask.name,
@@ -257,7 +257,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         """
         Subclassing the trigger manager with a post-skip hook.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_failingTask': {
                 'after':    [],
                 'andEvery': 'fail',

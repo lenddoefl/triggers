@@ -30,6 +30,10 @@ class CacheStorageBackend(TriggerStorageBackend):
 
         :param timeout:
             Timeout value to use when storing data to the cache.
+
+            Depending on which cache you are using (e.g., Redis),
+            setting ``timeout=None`` may store values permanently, or
+            it may use the cache's default timeout value.
         """
         super(CacheStorageBackend, self).__init__(uid)
 

@@ -29,7 +29,7 @@ class TriggerManagerUnlessTestCase(TriggerManagerTestCaseMixin, TestCase):
         Configuring a task so that it won't run if a certain trigger
         fires.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'run':      DevNullTask.name,
                 'after':    ['__sessionFinalized'],
@@ -50,7 +50,7 @@ class TriggerManagerUnlessTestCase(TriggerManagerTestCaseMixin, TestCase):
         Configuring a task so that it won't run if a set of triggers
         fire.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'run':      DevNullTask.name,
                 'after':    ['dataReceived', '__sessionFinalized'],
@@ -82,7 +82,7 @@ class TriggerManagerUnlessTestCase(TriggerManagerTestCaseMixin, TestCase):
         Configuring abandonment criteria for a task that can run
         multiple times.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'run':      DevNullTask.name,
                 'after':    ['creditsDepleted'],
@@ -109,7 +109,7 @@ class TriggerManagerUnlessTestCase(TriggerManagerTestCaseMixin, TestCase):
         A task instance's abandonment criteria are satisfied after the
         instance started running.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'run':      DevNullTask.name,
                 'after':    ['creditsDepleted'],
@@ -134,7 +134,7 @@ class TriggerManagerUnlessTestCase(TriggerManagerTestCaseMixin, TestCase):
         Creating a copy of an existing task instance should also copy
         its abandon state.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'run':      DevNullTask.name,
                 'after':    ['dataReceived'],

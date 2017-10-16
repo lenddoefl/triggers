@@ -120,15 +120,6 @@ class TriggerManagerTestCaseMixin(with_metaclass(ABCMeta, TestCase)):
         with AttrPatcher(runners, DEFAULT_TASK_RUNNER=runners.ThreadingTaskRunner):
             super(TriggerManagerTestCaseMixin, self).run(result)
 
-    def _configure_tasks(self, task_config):
-        # type: (dict) -> None
-        """
-        Configures the trigger manager for a test.
-        """
-        with self.manager.storage.acquire_lock() as writable_storage:
-            writable_storage.update_config(task_config)
-            writable_storage.save()
-
     def assertInstanceStatus(self, instance_name, expected_status):
         # type: (Text, Text) -> None
         """

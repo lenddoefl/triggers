@@ -28,7 +28,7 @@ class TriggerManagerSkipFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
         """
         Marking a failed task as skipped.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    ['dataReceived'],
                 'run':      FailingTask.name,
@@ -56,7 +56,7 @@ class TriggerManagerSkipFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
         Marking a failed task as skipped and firing the corresponding
         trigger.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    ['dataReceived'],
                 'run':      FailingTask.name,
@@ -105,7 +105,7 @@ class TriggerManagerSkipFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
         """
         Attempting to skip a task that didn't fail.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    ['dataReceived'],
                 'run':      PassThruTask.name,

@@ -31,7 +31,7 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         """
         Firing a trigger causes tasks to run.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             # This task will be invoked without any kwargs.
             't_alpha': {
                 'after':   ['_finishStep'],
@@ -95,7 +95,7 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         """
         Firing a trigger with custom kwargs.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':   ['_finishStep'],
                 'run':     PassThruTask.name,
@@ -167,7 +167,7 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         """
         Invoking a task that requires multiple triggers to fire.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             # This task will be invoked without any kwargs.
             't_alpha': {
                 'after':   ['dataReceived', 'creditsDepleted'],
@@ -248,7 +248,7 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         Invoking a task that requires multiple triggers to fire,
         providing custom kwargs each time.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             # This task will be invoked without any kwargs.
             't_alpha': {
                 'after':   ['dataReceived', 'creditsDepleted'],
@@ -347,7 +347,7 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         Firing a trigger successfully causes subsequent triggers to
         fire.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':   ['dataReceived'],
                 'run':     PassThruTask.name,
@@ -440,7 +440,7 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         fire, with the result of the successful task acting as
         kwargs for the cascading tasks.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':   ['dataReceived'],
                 'run':     PassThruTask.name,
@@ -517,7 +517,7 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         Firing a trigger successfully causes cascade, but matching
         task has unsatisfied complex trigger.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    ['dataReceived', 'creditsDepleted'],
                 'run':      PassThruTask.name,
@@ -590,7 +590,7 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
 
         This is basically a reverse of the previous test.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    ['dataReceived', 'creditsDepleted'],
                 'run':      PassThruTask.name,
@@ -670,7 +670,7 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         different values, so the "redundant trigger" scenario may
         come up a lot more than you'd expect.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    ['dataReceived', 'creditsDepleted'],
                 'run':      DevNullTask.name,
@@ -718,7 +718,7 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         """
         Updating an instance's metadata without changing its status.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    ['__marketingOptIn'],
                 'run':      DevNullTask.name,

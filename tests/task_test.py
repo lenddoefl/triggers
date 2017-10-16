@@ -33,7 +33,7 @@ class TriggerTaskTestCase(TriggerManagerTestCaseMixin, TestCase):
         """
         A task marks itself as skipped at runtime.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_skipper': {
                 'after':    ['integrity'],
                 'run':      SelfSkippingTask.name,
@@ -56,7 +56,7 @@ class TriggerTaskTestCase(TriggerManagerTestCaseMixin, TestCase):
         A task marks itself as skipped and updates its metadata at
         runtime.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_skipper': {
                 'after':    ['integrity'],
                 'run':      SelfSkippingTask.name,
@@ -83,7 +83,7 @@ class TriggerTaskTestCase(TriggerManagerTestCaseMixin, TestCase):
         A task retries itself at runtime.
         """
         with AttrPatcher(SelfRetryingTask, max_retries=2):
-            self._configure_tasks({
+            self.manager.update_configuration({
                 't_replay': {
                     'after':        ['start'],
                     'run':          SelfRetryingTask.name,
@@ -104,7 +104,7 @@ class TriggerTaskTestCase(TriggerManagerTestCaseMixin, TestCase):
         A task retries itself too many times.
         """
         with AttrPatcher(SelfRetryingTask, max_retries=2):
-            self._configure_tasks({
+            self.manager.update_configuration({
                 't_replay': {
                     'after':        ['start'],
                     'run':          SelfRetryingTask.name,

@@ -31,7 +31,7 @@ class TriggerManagerAndEveryTestCase(
         """
         Firing a trigger that has already been fired.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':   ['_finishStep'],
                 'run':     PassThruTask.name,
@@ -72,7 +72,7 @@ class TriggerManagerAndEveryTestCase(
         Firing a trigger multiple times for a task that supports
         multiple execution.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             # This task will be invoked without any kwargs.
             't_alpha': {
                 'after':    [],
@@ -151,7 +151,7 @@ class TriggerManagerAndEveryTestCase(
         """
         Running a task multiple times with different kwargs.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    [],
                 'andEvery': '_finishStep',
@@ -269,7 +269,7 @@ class TriggerManagerAndEveryTestCase(
         """
         Running a task with a complex trigger multiple times.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             # This task will be invoked without any kwargs.
             't_alpha': {
                 'after':    ['dataReceived'],
@@ -364,7 +364,7 @@ class TriggerManagerAndEveryTestCase(
         Running a task with a complex trigger multiple times,
         specifying different kwargs.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             # This task will be invoked without any kwargs.
             't_alpha': {
                 'after':    ['creditsDepleted'],
@@ -496,7 +496,7 @@ class TriggerManagerAndEveryTestCase(
         A task runs multiple times, and the resulting cascading
         triggers cause other tasks to run.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    [],
                 'andEvery': 'dataReceived',
@@ -622,7 +622,7 @@ class TriggerManagerAndEveryTestCase(
         resulting cascading triggers cause other tasks to run as
         well.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    [],
                 'andEvery': 'dataReceived',
@@ -744,7 +744,7 @@ class TriggerManagerAndEveryTestCase(
         triggers are not sufficient to cause other tasks with
         complex triggers to run.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 # You only get to pick *one* trigger for
                 # ``andEvery``.
@@ -862,7 +862,7 @@ class TriggerManagerAndEveryTestCase(
         A task that allows multiple causes cascades, triggering one-
         shot tasks.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    [],
                 'andEvery': 'dataReceived',
@@ -907,7 +907,7 @@ class TriggerManagerAndEveryTestCase(
         """
         A task has ``andEvery`` set to the name of a one-shot task.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             # This task is configured as a one-shot.
             't_alpha': {
                 'after':    ['dataReceived'],
@@ -953,7 +953,7 @@ class TriggerManagerAndEveryTestCase(
         An instance of an ``andEvery`` task isn't created until
         after trigger kwargs have changed.
         """
-        self._configure_tasks({
+        self.manager.update_configuration({
             't_alpha': {
                 'after':    ['creditsDepleted'],
                 'andEvery': 'dataReceived',
