@@ -35,7 +35,7 @@ workflows you want to support over the course of each session:
         database.
       - ``app.tasks.ImportResponses`` imports the user's response data into a
         document database.
-      - ``app.tasks.ImportDeviceMetadata`` sends a request to a 3rd-party web
+      - ``app.tasks.ImportBrowserMetadata`` sends a request to a 3rd-party web
         service to download metadata about the user's browser, based on their
         user agent string.
 
@@ -59,7 +59,7 @@ workflows you want to support over the course of each session:
       - ``ImportResponses`` should run **each time** we receive a page of
         questionnaire responses, **but** it requires a subject ID, so it can
         only run once ``ImportSubject`` has finished successfully.
-      - ``ImportDeviceMetadata`` should run **once** after any single page of
+      - ``ImportBrowserMetadata`` should run **once** after any single page of
         responses are received, **but** it also requires a subject ID, so it can
         only run after ``ImportSubject`` has finished successfully.
 
@@ -128,7 +128,7 @@ workflows you want to support over the course of each session:
            "run": "app.tasks.ImportResponses"
          },
 
-         "t_importDeviceMetadata": {
+         "t_importBrowserMetadata": {
            // Loads the user agent string from any ONE page of
            // responses (we don't care which one), but cannot run
            // until the subject data are imported...
@@ -139,7 +139,7 @@ workflows you want to support over the course of each session:
            // task should NOT run.
            "unless": ["isEmbeddedApplication"],
 
-           "run": "app.tasks.ImportDeviceMetadata"
+           "run": "app.tasks.ImportBrowserMetadata"
          }
        }
 
@@ -320,10 +320,10 @@ the start of the questionnaire application:
          'run': 'app.tasks.ImportResponses',
        },
 
-       't_importDeviceMetadata': {
+       't_importBrowserMetadata': {
          'after': ['t_importSubject', 'pageReceived'],
          'unless': ['isEmbeddedApplication'],
-         'run': 'app.tasks.ImportDeviceMetadata',
+         'run': 'app.tasks.ImportBrowserMetadata',
        },
      })
 
@@ -338,8 +338,7 @@ Celery tasks, with a couple of differences:
 - The tasks must extend :py:class:`triggers.task.TriggerTask`.
 - Override the ``_run`` method instead of ``run`` (note the leading underscore).
 
-:todo: What does ``_run`` look like.
-:todo: Link to :doc:`tasks`.
+For more information about see :doc:`tasks`.
 
 
 .. _celery already has you covered: http://docs.celeryproject.org/en/latest/userguide/canvas.html

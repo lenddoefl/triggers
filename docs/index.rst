@@ -9,9 +9,10 @@
    status
    inspecting
    logs
-   runners
-   backends
    testing
+   managers
+   backends
+   runners
    cookbook
 
 .. include:: ../README.rst
