@@ -88,7 +88,64 @@ The ``ImportSubject`` task's ``_run`` method (note the leading underscore) does
 ------------
 Task Context
 ------------
-:todo:
+The only argument passed to the ``_run`` method is a
+:py:class:`triggers.task.TaskContext` object.
+
+The :py:class:`TaskContext` provides everything that your task will need to
+interact with the Triggers framework infrastructure:
+
+^^^^^^^^^^^^^^^
+Trigger Manager
+^^^^^^^^^^^^^^^
+``context.manager`` is a trigger manager instance that you can leverage in your
+task to interact with the Triggers framework.  For example, you can use
+``context.manager`` to fire additional triggers as your task runs.
+
+^^^^^^^^^^^^^^
+Trigger Kwargs
+^^^^^^^^^^^^^^
+As noted above, whenever the application fires a trigger, it can attach optional
+kwargs to that trigger.
+
+These kwargs are then made available to your task in two ways:
+
+- ``context.trigger_kwargs`` returns the raw kwargs for each trigger that caused
+  your task to run.
+- ``context.filter_kwargs()`` uses the `Filters library`_ to validate and
+  transform the ``trigger_kwargs``.
+
+The above example shows how to use ``context.trigger_kwargs``.  Here is an
+alternate approach that uses ``context.filter_kwargs()`` instead:
+
+.. code-block:: python
+
+  import filters as f
+
+   class ImportSubject(TriggerTask):
+     def _run(self, context):
+       # type: (TaskContext) -> dict
+
+       filtered_kwargs =\
+         context.filter_kwargs({
+           'firstPageReceived': {
+             'responses':
+                 f.Required
+               | f.Type(dict)
+               | f.FilterMapper({
+                   'birthday':  f.Required | f.Date,
+                   'name':      f.Required | f.Unicode,
+                 }),
+           },
+         })
+
+       page_data = filtered_kwargs['firstPageReceived']['responses']
+
+       ...
+
+.. note::
+
+   If you have worked with `FilterMappers`_ in the past, the above structure
+   should look very familiar.
 
 ---------
 Cascading
@@ -104,3 +161,7 @@ Logging
 Retrying
 --------
 :todo:
+
+
+.. _Filters library: https://filters.readthedocs.io/
+.. _FilterMappers: https://filters.readthedocs.io/en/latest/complex_filters.html#working-with-mappings

@@ -151,17 +151,16 @@ class TaskContext(object):
 
         Example::
 
-           task_params = context.filter_kwargs({
-             't_createApplicant': {
-               'eflId':
-                    f.Required
-                 |  f.ext.Model(SubjectAssessment, field='externalId'),
-             },
+           task_params =
+             context.filter_kwargs({
+               't_createApplicant': {
+                 'eflId': f.Required | f.ext.Model(Questionnaire),
+               },
 
-             'skynet': {
-                'scoreVersionId'; f.Required | f.ext.Model(ScoreVersion),
-             },
-           })
+               'scoring': {
+                  'model'; f.Required | f.Unicode,
+               },
+             })
 
         :raise:
           - ``ValueError`` if the trigger kwargs fail validation.
