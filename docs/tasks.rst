@@ -150,18 +150,97 @@ alternate approach that uses ``context.filter_kwargs()`` instead:
 ---------
 Cascading
 ---------
-:todo:
+When the Celery task finishes successfully, the trigger manager will cause a
+"cascade" by firing the corresponding trigger task's name as a trigger.
+
+For example, consider the trigger task from earlier:
+
+.. code-block:: python
+
+   trigger_manager.update_configuration({
+     't_importSubject': {
+       'after': ['firstPageReceived', 'questionnaireComplete'],
+       'run': 'app.tasks.ImportSubject',
+     },
+     ...
+   })
+
+The trigger task is named ``t_importSubject``, so when the ``ImportSubject``
+Celery task finishes, the trigger manager will automatically fire a trigger
+named ``t_importSubject``.
+
+But, what kwargs are attached to this trigger?
+
+If the Celery task returns a mapping (e.g., dict), then that will be used as the
+kwargs for the cascading trigger.
+
+Going back to the ``ImportSubject`` example:
+
+.. code-block:: python
+
+   class ImportSubject(TriggerTask):
+     def _run(self, context):
+       ...
+
+       # Make the PK value accessible to tasks that are
+       # waiting for a cascade.
+       return {
+         'subjectId': new_subject.pk,
+       }
+
+When this task finishes, the trigger manager will cascade like this:
+
+.. code-block:: python
+
+   trigger_manager.fire(
+     trigger_name   = 't_importSubject',
+     trigger_kwargs = {'subjectId': new_subject.pk},
+   )
 
 -------
 Logging
 -------
-:todo: ``get_logger_context`` (include link to logs.rst)
+If your Celery task needs to use a logger, consider using
+``context.get_logger_context()``.
+
+The logger instance returned by this method includes a few features that
+integrate closely with the trigger manager.
+
+See :doc:`logs` for more information.
 
 --------
 Retrying
 --------
-:todo:
+To retry a Celery task mid-execution, the method looks similar to a regular
+Celery task:
 
+.. code-block:: python
+
+   class ImportBrowserMetadata(TriggerTask):
+     # Specify the max number of retries allowed.
+     max_retries = 3
+
+     def _run(self, context):
+       # type: (TaskContext) -> dict
+       ...
+
+       try:
+         # Try to load data from 3rd-party API...
+         metadata = api_client.post(...)
+       except HttpError as e:
+         # ... but if we are unable to connect,
+         # retry after a delay.
+         raise self.retry(exc=e, cooldown=10)
+
+Note that this retry mechanism works a little differently from Celery's retry:
+
+- You must ``raise self.retry()``; it won't raise the exception for you.
+- Use ``cooldown`` instead of ``countdown``.  ``eta`` is not supported.
+- If desired, you can also specify replacement trigger kwargs to use when
+  retrying the task.
+
+If the Celery task exceeds its ``max_retries``, then it will raise a
+:py:class:`triggers.task.MaxRetriesExceeded`.
 
 .. _Filters library: https://filters.readthedocs.io/
 .. _FilterMappers: https://filters.readthedocs.io/en/latest/complex_filters.html#working-with-mappings
