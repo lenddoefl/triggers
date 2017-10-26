@@ -31,4 +31,5 @@ These are the possible status values:
 ``abandoned``
    The task instance was abandoned because its ``unless`` clause was satisfied.
 
-For more information about how to check an instance status, see :doc:`managers`.
+For more information about how to check an instance's status, see
+:doc:`inspecting`.
