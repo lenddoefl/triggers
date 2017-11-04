@@ -6,7 +6,7 @@ from abc import ABCMeta, abstractmethod as abstract_method
 from collections import defaultdict
 from contextlib import contextmanager as context_manager
 from typing import Any, Dict, Iterable, Mapping, MutableMapping, Optional, \
-    Text, Tuple, Union
+    Text, Tuple, Union, List
 
 from class_registry import EntryPointClassRegistry
 from six import iteritems, itervalues, with_metaclass
@@ -230,6 +230,36 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
                     self.invalidate_cache()
 
                 yield self
+
+    def get_instances_with_unresolved_logs(self):
+        # type: () -> List[TaskInstance]
+        """
+        Returns all task instances that have unresolved log messages.
+        """
+        return [
+            instance
+                for instance in self.iter_instances()
+                if not instance.logs_resolved
+        ]
+
+    def get_unresolved_instances(self):
+        # type: () -> List[TaskInstance]
+        """
+        Returns all task instances that are currently in unresolved
+        state.
+        """
+        return [
+            instance
+                for instance in self.iter_instances()
+                if not instance.is_resolved
+        ]
+
+    def iter_instances(self):
+        # type: () -> Iterable[TaskInstance]
+        """
+        Returns a generator for iterating over all task instances.
+        """
+        return itervalues(self.instances)
 
     def clone_instance(self, task_instance):
         # type: (TaskInstance) -> TaskInstance

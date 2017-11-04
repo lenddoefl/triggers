@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, \
     unicode_literals
 
 from datetime import datetime
-from typing import Dict, Iterable, List, Mapping, Optional, Text, Union
+from typing import Dict, List, Mapping, Optional, Text, Union
 
 from class_registry import EntryPointClassRegistry
 from six import itervalues
@@ -24,6 +24,9 @@ trigger_managers =\
     ) # type: Union[EntryPointClassRegistry, Dict[Text, TriggerManager]]
 """
 Registry of available TriggerManager classes.
+
+Register new trigger managers by adding ``triggers.managers`` entry
+points to your project's ``setup.py``.
 """
 
 
@@ -31,6 +34,21 @@ class TriggerManager(object):
     """
     Fires triggers, runs tasks, also makes julienne fries.
     """
+    triggers__registry_key = None # type: Text
+    """
+    Reverse lookup for the trigger manager's key in the
+    :py:data:`trigger_managers` registry.
+
+    .. important::
+
+       This value is set automatically at runtime!
+
+    References:
+
+       - :py:data:`trigger_managers`
+       - :py:meth:`EntryPointClassRegistry.__init__`
+    """
+
     def __init__(self, storage):
         # type: (TriggerStorageBackend) -> None
         """
@@ -50,8 +68,10 @@ class TriggerManager(object):
         the trigger configuration, but it could also be used to update
         the configuration of a session already in progress.
 
-        Important: the trigger manager will NOT apply previously-fired
-        triggers to the new configuration!
+        .. warning::
+
+           The trigger manager will NOT apply previously-fired triggers
+           to the new configuration!
 
         :param config:
             Object containing trigger task definitions.
@@ -347,44 +367,6 @@ class TriggerManager(object):
         if cascade:
             # Cascade, triggering any tasks that depend on this one.
             self.fire(task_instance.config.name, cascade_kwargs)
-
-    def iter_instances(self):
-        # type: () -> Iterable[TaskInstance]
-        """
-        Returns a generator for iterating over all task instances.
-        """
-        return itervalues(self.storage.instances)
-
-    def get_unresolved_instances(self):
-        # type: () -> List[TaskInstance]
-        """
-        Returns all task instances that are currently in unresolved
-        state.
-        """
-        return [
-            instance
-                for instance in self.iter_instances()
-                if not instance.is_resolved
-        ]
-
-    def get_instances_with_unresolved_logs(self):
-        # type: () -> List[TaskInstance]
-        """
-        Returns all task instances that have unresolved log messages.
-        """
-        return [
-            instance
-                for instance in self.iter_instances()
-                if not instance.logs_resolved
-        ]
-
-    def debug_repr(self):
-        # type: () -> dict
-        """
-        Returns a dict representation of the trigger data, useful
-        for debugging.
-        """
-        return self.storage.debug_repr()
 
     def _schedule_task(self, task_instance):
         # type: (TaskInstance) -> None
