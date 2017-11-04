@@ -79,21 +79,21 @@ class TriggerManager(object):
         # Apply kwargs and identify tasks that are ready to fire.
         # Do this with the storage backend locked to avoid shenanigans
         # when multiple processes are operating on the same UID.
-        with self.storage.acquire_lock():
+        with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
             # Keep track of kwargs for each fired trigger.  In
             # particular, this allows us to correctly populate
             # ``kwargs`` when creating new instances for tasks that
             # have ``andEvery``.
-            latest_kwargs = self.storage.latest_kwargs
+            latest_kwargs = writable_storage.latest_kwargs
 
-            for task_config in itervalues(self.storage.tasks): # type: TaskConfig
+            for task_config in itervalues(writable_storage.tasks): # type: TaskConfig
                 if not task_config.uses_trigger(trigger_name):
                     continue
 
                 # Ensure we have a list (Python 3 compat).
                 task_instances =\
                     list(itervalues(
-                        self.storage.instances_of_task(task_config)
+                        writable_storage.instances_of_task(task_config)
                     )) # type: List[TaskInstance]
 
                 if task_instances:
@@ -119,7 +119,7 @@ class TriggerManager(object):
                     create_instance = True
 
                 if create_instance:
-                    new_instance = self.storage.create_instance(
+                    new_instance = writable_storage.create_instance(
                         task_config = task_config,
 
                         #
@@ -174,7 +174,7 @@ class TriggerManager(object):
             # from loading stale data; it only prevents them from
             # writing stale data!
             #
-            self.storage.save()
+            writable_storage.save()
 
             for task_instance in tasks_ready:
                 self._schedule_task(task_instance)
@@ -214,28 +214,18 @@ class TriggerManager(object):
         if result is None:
             result = {}
 
-        # Acquire lock to prevent shenanigans as we insert new metadata
-        # into the existing values.
-        with self.storage.acquire_lock():
-            self.update_task_status(
-                instance_name   = instance_name,
-                status          = TaskInstance.STATUS_SKIPPED,
+        self.update_task_status(
+            instance_name   = instance_name,
+            status          = TaskInstance.STATUS_SKIPPED,
 
-                metadata = {
-                    'cascade':  cascade,
-                    'result':   result,
-                },
+            metadata = {
+                'cascade':  cascade,
+                'result':   result,
+            },
 
-                # Do not use the cascade feature here, to prevent
-                # deadlocks during unit tests; instead, we have to
-                # wait until we release the lock.
-                # cascade = cascade,
-                # cascade_kwargs = result,
-            )
-
-        if cascade:
-            # noinspection PyArgumentList
-            self.fire(self.storage[instance_name].config.name, result)
+            cascade         = cascade,
+            cascade_kwargs  = result,
+        )
 
         self._post_skip(task_instance, cascade)
 
@@ -263,14 +253,14 @@ class TriggerManager(object):
         :raise:
             - ValueError if the corresponding task is not failed.
         """
-        with self.storage.acquire_lock():
-            failed_task = self.storage[instance_name]
+        with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
+            failed_task = writable_storage[instance_name]
 
             if not failed_task.can_replay:
                 raise ValueError(
                 'Task "{task}" in {status} state cannot be replayed!'.format(
                     task    = instance_name,
-                    status  = self.storage[instance_name].status,
+                    status  = writable_storage[instance_name].status,
                 ),
             )
 
@@ -279,13 +269,13 @@ class TriggerManager(object):
 
             # Create a new task instance for the replay, so that we can
             # keep track of the result.
-            replay_task = self.storage.clone_instance(failed_task)
+            replay_task = writable_storage.clone_instance(failed_task)
 
             if replacement_kwargs is not None:
                 replay_task.kwargs = replacement_kwargs
 
             # Ensure status changes are persisted before we continue.
-            self.storage.save()
+            writable_storage.save()
 
             self._schedule_task(replay_task)
 
@@ -299,14 +289,14 @@ class TriggerManager(object):
         This method does not change the instance's status; use
         :py:meth:`update_task_status` for that.
         """
-        with self.storage.acquire_lock():
-            task_instance = self.storage[instance_name]
+        with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
+            task_instance = writable_storage[instance_name]
 
             task_instance.metadata.update(metadata or {})
 
             self._update_timestamps(task_instance)
 
-            self.storage.save()
+            writable_storage.save()
 
     def update_task_status(
             self,
@@ -344,15 +334,15 @@ class TriggerManager(object):
             Keyword arguments to pass to :py:meth:`fire` when
             cascading.
         """
-        with self.storage.acquire_lock():
-            task_instance = self.storage[instance_name]
+        with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
+            task_instance = writable_storage[instance_name]
 
             task_instance.status = status
             task_instance.metadata.update(metadata or {})
 
             self._update_timestamps(task_instance, status)
 
-            self.storage.save()
+            writable_storage.save()
 
         if cascade:
             # Cascade, triggering any tasks that depend on this one.
