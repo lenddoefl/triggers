@@ -45,11 +45,22 @@ class TriggerManagerSkipFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
 
         self.assertInstanceFailed('t_alpha#0', RuntimeError)
 
+        self.assertUnresolvedTasks(['t_alpha', 't_bravo'])
+
+        # Failed tasks are considered unresolved.
+        self.assertUnresolvedInstances(['t_alpha#0'])
+
         self.manager.skip_failed_task('t_alpha#0')
         self.assertInstanceSkipped('t_alpha#0')
 
         # Skipping a task prevents it from cascading.
         self.assertInstanceMissing('t_bravo#0')
+
+        # The skipped instance is considered resolved.
+        # However, ``t_bravo`` is still unresolved, since it hasn't
+        # run yet.
+        self.assertUnresolvedTasks(['t_bravo'])
+        self.assertUnresolvedInstances([])
 
     def test_skip_failed_task_with_cascade(self):
         """
@@ -72,6 +83,9 @@ class TriggerManagerSkipFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
         ThreadingTaskRunner.join_all()
 
         self.assertInstanceFailed('t_alpha#0', RuntimeError)
+
+        self.assertUnresolvedTasks(['t_alpha', 't_bravo'])
+        self.assertUnresolvedInstances(['t_alpha#0'])
 
         self.manager.skip_failed_task(
             instance_name = 't_alpha#0',
@@ -100,6 +114,9 @@ class TriggerManagerSkipFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
                 },
             },
         })
+
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
 
     def test_cannot_skip_non_failed_task(self):
         """
