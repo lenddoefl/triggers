@@ -48,6 +48,11 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
         self.assertInstanceFailed('t_alpha#0', RuntimeError)
         self.assertInstanceMissing('t_bravo#0')
 
+        self.assertUnresolvedTasks(['t_alpha', 't_bravo'])
+
+        # Failed instances are considered unresolved.
+        self.assertUnresolvedInstances(['t_alpha#0'])
+
         # Simulate changing conditions that will cause the task to run
         # successfully when it is replayed.
         self.manager.update_configuration({
@@ -82,6 +87,10 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
             },
         })
 
+        self.assertUnresolvedTasks([])
+        # The replayed instance is considered resolved.
+        self.assertUnresolvedInstances([])
+
     def test_replay_failed_task_with_different_kwargs(self):
         """
         Replaying a failed task with different kwargs.
@@ -106,6 +115,9 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
         # Quick sanity check.
         self.assertInstanceFailed('t_alpha#0', RuntimeError)
         self.assertInstanceMissing('t_bravo#0')
+
+        self.assertUnresolvedTasks(['t_alpha', 't_bravo'])
+        self.assertUnresolvedInstances(['t_alpha#0'])
 
         # Simulate changing conditions that will cause the task to run
         # successfully when it is replayed.
@@ -174,6 +186,9 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
                 },
             },
         })
+
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
 
     def test_cannot_replay_non_failed_task(self):
         """
