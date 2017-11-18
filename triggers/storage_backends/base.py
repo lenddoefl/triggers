@@ -148,7 +148,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
 
     @property
     def instances(self):
-        # type: () -> TaskInstanceCollection
+        # type: () -> Union[TaskInstanceCollection, Dict[Text, TaskInstance]]
         """
         Returns the task instances stored in the backend.
 
@@ -262,13 +262,19 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
         return itervalues(self.instances)
 
     def clone_instance(self, task_instance):
-        # type: (TaskInstance) -> TaskInstance
+        # type: (Union[TaskInstance, Text]) -> TaskInstance
         """
         Installs a clone of an existing TaskInstance.
+
+        :param task_instance:
+            :py:class:`TaskInstance` object, or instance name.
 
         :return:
             The cloned task instance.
         """
+        if not isinstance(task_instance, TaskInstance):
+            task_instance = self.instances[task_instance]
+
         return self.create_instance(
             abandonState    = task_instance.abandon_state,
             kwargs          = task_instance.kwargs,
@@ -281,12 +287,12 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
         )
 
     def create_instance(self, task_config, **kwargs):
-        # type: (TaskConfig, **Any) -> TaskInstance
+        # type: (Union[TaskConfig, Text], **Any) -> TaskInstance
         """
         Installs a new :py:class:`TaskInstance`.
 
         :type task_config:
-            The configuration that the new instance will use.
+            :py:class:`TaskConfig` object, or task name.
 
         :param kwargs:
             Additional kwargs to provide to the TaskInstance
@@ -294,18 +300,24 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
         """
         self._load()
 
+        if not isinstance(task_config, TaskConfig):
+            task_config = self.tasks[task_config]
+
         return self._instances.create_instance(
-            config  = task_config,
-            status  = TaskInstance.STATUS_UNSTARTED,
+            task_config = task_config,
+            status      = TaskInstance.STATUS_UNSTARTED,
 
             **kwargs
         )
 
     def instances_of_task(self, task_config):
-        # type: (TaskConfig) -> Dict[Text, TaskInstance]
+        # type: (Union[TaskConfig, Text]) -> Dict[Text, TaskInstance]
         """
         Returns all instances that have been created for the specified
         task.
+
+        :param task_config:
+            :py:class:`TaskConfig` object, or task name.
         """
         self._load()
 
@@ -399,8 +411,8 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
 
         for name, raw_status in iteritems(raw_statuses):
             self._instances.create_instance(
-                name    = name,
-                config  = self._configs[raw_status.pop('task')],
+                name        = name,
+                task_config = self._configs[raw_status.pop('task')],
 
                 **raw_status
             )
@@ -438,21 +450,27 @@ class TaskInstanceCollection(dict):
         """
 
     def get_from_task(self, task_config):
-        # type: (TaskConfig) -> Dict[Text, TaskInstance]
+        # type: (Union[TaskConfig, Text]) -> Dict[Text, TaskInstance]
         """
         Returns all instances matching the specified task.
+
+        :param task_config:
+            :py:class:`TaskConfig` instance, or task name.
 
         :return:
             Returns an empty dict if the task has no instances.
         """
-        return self._collections.get(task_config.name, {})
+        if isinstance(task_config, TaskConfig):
+            task_config = task_config.name
 
-    def create_instance(self, config, name=None, **kwargs):
+        return self._collections.get(task_config, {})
+
+    def create_instance(self, task_config, name=None, **kwargs):
         # type: (TaskConfig, Optional[Text], **Any) -> TaskInstance
         """
         Creates a new TaskInstance.
 
-        :param config:
+        :param task_config:
             The configuration that the new instance will use.
 
         :param name:
@@ -464,18 +482,18 @@ class TaskInstanceCollection(dict):
         """
         if name is None:
             name = '{task}#{i}'.format(
-                task    = config.name,
-                i       = len(self._collections[config.name]),
+                task    = task_config.name,
+                i       = len(self._collections[task_config.name]),
             )
 
         instance = TaskInstance(
             name    = name,
-            config  = config,
+            config  = task_config,
 
             **kwargs
         )
 
         self[name] = instance
-        self._collections[config.name][name] = instance
+        self._collections[task_config.name][name] = instance
 
         return instance
