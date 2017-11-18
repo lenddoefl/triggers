@@ -242,11 +242,54 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
                 if not instance.logs_resolved
         ]
 
+    def get_unresolved_tasks(self):
+        # type: () -> List[TaskConfig]
+        """
+        Returns all trigger tasks where:
+
+        - At least one of its instances is unresolved, or
+        - no instances have been created yet (i.e., none of the
+          triggers in its ``after`` clause have fired yet).
+
+        :return:
+            :py:class:`TaskConfig` objects.  Order is undefined.
+        """
+        unresolved = []
+
+        for task in itervalues(self.tasks):
+            instances = itervalues(self.instances_of_task(task))
+
+            try:
+                instance = next(instances)
+            except StopIteration:
+                # Task has no instances yet.
+                unresolved.append(task)
+            else:
+                while instance:
+                    if not instance.is_resolved:
+                        # Task has at least one unresolved instance.
+                        unresolved.append(task)
+                        break
+
+                    instance = next(instances, None)
+
+        return unresolved
+
     def get_unresolved_instances(self):
         # type: () -> List[TaskInstance]
         """
         Returns all task instances that are currently in unresolved
         state.
+
+        Note: if none of a task's triggers have fired yet, then it will
+        not have any instances.  The task itself is might be considered
+        "unresolved", but it will have no unresolved instances.
+
+        To get a list of unresolved tasks, invoke the
+        :py:meth:`get_unresolved_tasks` method instead.
+
+        :return:
+            :py:class:`TaskInstance` objects.  Order is undefined.
         """
         return [
             instance

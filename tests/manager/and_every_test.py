@@ -67,7 +67,7 @@ class TriggerManagerAndEveryTestCase(
             },
         })
 
-    def test_allowing_multiple(self):
+    def test_and_every(self):
         """
         Firing a trigger multiple times for a task that supports
         multiple execution.
@@ -126,6 +126,12 @@ class TriggerManagerAndEveryTestCase(
 
         self.assertInstanceMissing('t_charlie#0')
 
+        # ``t_alpha`` and ``t_bravo`` are considered to be resolved,
+        # because each has at least one resolved instance and no
+        # unresolved instances.
+        self.assertUnresolvedTasks(['t_charlie'])
+        self.assertUnresolvedInstances([])
+
         # Let's see what happens when we fire the trigger a second
         # time.
         self.manager.fire('_finishStep')
@@ -146,6 +152,11 @@ class TriggerManagerAndEveryTestCase(
         })
 
         self.assertInstanceMissing('t_charlie#0')
+
+        # ``t_alpha`` and ``t_bravo`` still have no unresolved
+        # instances, so their status doesn't change.
+        self.assertUnresolvedTasks(['t_charlie'])
+        self.assertUnresolvedInstances([])
 
     def test_kwargs(self):
         """
@@ -223,6 +234,9 @@ class TriggerManagerAndEveryTestCase(
         # This task doesn't run because its trigger never fired.
         self.assertInstanceMissing('t_charlie#0')
 
+        self.assertUnresolvedTasks(['t_charlie'])
+        self.assertUnresolvedInstances([])
+
         # And now for something completely different.
         self.manager.fire(
             trigger_name    = '_finishStep',
@@ -264,6 +278,9 @@ class TriggerManagerAndEveryTestCase(
                 },
             },
         })
+
+        self.assertUnresolvedTasks(['t_charlie'])
+        self.assertUnresolvedInstances([])
 
     def test_complex_trigger(self):
         """
@@ -308,6 +325,11 @@ class TriggerManagerAndEveryTestCase(
         self.assertInstanceUnstarted('t_bravo#0')
         self.assertInstanceUnstarted('t_charlie#0')
 
+        self.assertUnresolvedTasks(['t_alpha', 't_bravo', 't_charlie'])
+        self.assertUnresolvedInstances(
+            ['t_alpha#0', 't_bravo#0', 't_charlie#0'],
+        )
+
         self.manager.fire('creditsDepleted')
         ThreadingTaskRunner.join_all()
 
@@ -330,6 +352,9 @@ class TriggerManagerAndEveryTestCase(
 
         self.assertInstanceUnstarted('t_charlie#0')
 
+        self.assertUnresolvedTasks(['t_charlie'])
+        self.assertUnresolvedInstances(['t_charlie#0'])
+
         # All of the tasks are configured to handle multiple ``creditsDepleted``
         # triggers.  Let's see what happens if we fire a different
         # one.
@@ -339,6 +364,9 @@ class TriggerManagerAndEveryTestCase(
         # No TaskInstances were created!
         self.assertInstanceMissing('t_alpha#1')
         self.assertInstanceMissing('t_bravo#1')
+
+        self.assertUnresolvedTasks(['t_charlie'])
+        self.assertUnresolvedInstances(['t_charlie#0'])
 
         # Let them eat...
         self.manager.fire('creditsDepleted')
@@ -358,6 +386,14 @@ class TriggerManagerAndEveryTestCase(
                 'creditsDepleted':  {},
             },
         })
+
+        # ``registerComplete`` never fired, so our charlie tasks never
+        # ran.
+        self.assertInstanceUnstarted('t_charlie#0')
+        self.assertInstanceUnstarted('t_charlie#1')
+
+        self.assertUnresolvedTasks(['t_charlie'])
+        self.assertUnresolvedInstances(['t_charlie#0', 't_charlie#1'])
 
     def test_complex_trigger_kwargs(self):
         """
@@ -413,6 +449,11 @@ class TriggerManagerAndEveryTestCase(
         self.assertInstanceUnstarted('t_bravo#0')
         self.assertInstanceUnstarted('t_charlie#0')
 
+        self.assertUnresolvedTasks(['t_alpha', 't_bravo', 't_charlie'])
+        self.assertUnresolvedInstances(
+            ['t_alpha#0', 't_bravo#0', 't_charlie#0'],
+        )
+
         # ... but none for ``creditsDepleted``.
         self.manager.fire('creditsDepleted')
         ThreadingTaskRunner.join_all()
@@ -452,6 +493,9 @@ class TriggerManagerAndEveryTestCase(
 
         self.assertInstanceUnstarted('t_charlie#0')
 
+        self.assertUnresolvedTasks(['t_charlie'])
+        self.assertUnresolvedInstances(['t_charlie#0'])
+
         # Let's try that again....
         self.manager.fire(
             trigger_name    = 'dataReceived',
@@ -490,6 +534,14 @@ class TriggerManagerAndEveryTestCase(
                 },
             },
         })
+
+        # ``registerComplete`` never fired, so our charlie tasks never
+        # ran.
+        self.assertInstanceUnstarted('t_charlie#0')
+        self.assertInstanceUnstarted('t_charlie#1')
+
+        self.assertUnresolvedTasks(['t_charlie'])
+        self.assertUnresolvedInstances(['t_charlie#0', 't_charlie#1'])
 
     def test_cascade(self):
         """
@@ -579,6 +631,9 @@ class TriggerManagerAndEveryTestCase(
             },
         })
 
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
+
         # Once more unto the breach!
         self.manager.fire('dataReceived')
         ThreadingTaskRunner.join_all()
@@ -615,6 +670,9 @@ class TriggerManagerAndEveryTestCase(
                 'geek_pun': {'baz': 'luhrmann'},
             },
         })
+
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
 
     def test_cascade_kwargs(self):
         """
@@ -689,6 +747,9 @@ class TriggerManagerAndEveryTestCase(
             },
         })
 
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
+
         # This time with feeling!
         self.manager.fire('dataReceived', {'rating': '3.2', 'alternate': True})
         ThreadingTaskRunner.join_all()
@@ -738,6 +799,9 @@ class TriggerManagerAndEveryTestCase(
             },
         })
 
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
+
     def test_cascade_complex_trigger(self):
         """
         A task runs multiple times, but the resulting cascading
@@ -779,6 +843,9 @@ class TriggerManagerAndEveryTestCase(
         self.assertInstanceMissing('t_bravo#0')
         self.assertInstanceMissing('t_charlie#0')
 
+        self.assertUnresolvedTasks(['t_alpha', 't_bravo', 't_charlie'])
+        self.assertUnresolvedInstances(['t_alpha#0'])
+
         self.manager.fire('creditsDepleted', {'time': 42})
         ThreadingTaskRunner.join_all()
 
@@ -794,6 +861,9 @@ class TriggerManagerAndEveryTestCase(
 
         self.assertInstanceUnstarted('t_bravo#0')
         self.assertInstanceUnstarted('t_charlie#0')
+
+        self.assertUnresolvedTasks(['t_bravo', 't_charlie'])
+        self.assertUnresolvedInstances(['t_bravo#0', 't_charlie#0'])
 
         self.manager.fire('registerComplete')
         ThreadingTaskRunner.join_all()
@@ -815,6 +885,9 @@ class TriggerManagerAndEveryTestCase(
         })
 
         self.assertInstanceUnstarted('t_charlie#0')
+
+        self.assertUnresolvedTasks(['t_charlie'])
+        self.assertUnresolvedInstances(['t_charlie#0'])
 
         # Trigger ``t_alpha`` to run again.
         self.manager.fire('dataReceived', {'alternate': True})
@@ -857,6 +930,9 @@ class TriggerManagerAndEveryTestCase(
         # ready to run because ``demo`` hasn't fired yet.
         self.assertInstanceUnstarted('t_charlie#1')
 
+        self.assertUnresolvedTasks(['t_charlie'])
+        self.assertUnresolvedInstances(['t_charlie#0', 't_charlie#1'])
+
     def test_cascade_one_shot(self):
         """
         A task that allows multiple causes cascades, triggering one-
@@ -892,6 +968,9 @@ class TriggerManagerAndEveryTestCase(
             },
         })
 
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
+
         self.manager.fire('dataReceived')
         ThreadingTaskRunner.join_all()
 
@@ -902,6 +981,9 @@ class TriggerManagerAndEveryTestCase(
         # Since ``t_bravo`` is one-shot, a second instance is NOT
         # created.
         self.assertInstanceMissing('t_bravo#1')
+
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
 
     def test_cascade_one_shot_reverse(self):
         """
@@ -936,6 +1018,9 @@ class TriggerManagerAndEveryTestCase(
             },
         })
 
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
+
         # Do it again.
         self.manager.fire('dataReceived')
         ThreadingTaskRunner.join_all()
@@ -947,6 +1032,9 @@ class TriggerManagerAndEveryTestCase(
         # Since ``t_alpha`` never runs a second time, it also does
         # not cause a second cascade.
         self.assertInstanceMissing('t_bravo#1')
+
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
 
     def test_deferred_kwargs(self):
         """
@@ -983,6 +1071,11 @@ class TriggerManagerAndEveryTestCase(
         self.assertInstanceUnstarted('t_bravo#0')
         self.assertInstanceUnstarted('t_charlie#0')
 
+        self.assertUnresolvedTasks(['t_alpha', 't_bravo', 't_charlie'])
+        self.assertUnresolvedInstances(
+            ['t_alpha#0', 't_bravo#0', 't_charlie#0'],
+        )
+
         self.manager.fire('creditsDepleted', {'counter': 2})
         ThreadingTaskRunner.join_all()
 
@@ -993,6 +1086,11 @@ class TriggerManagerAndEveryTestCase(
         # An extra instance of ``t_charlie`` is created to store the
         # new kwargs.
         self.assertInstanceUnstarted('t_charlie#1')
+
+        self.assertUnresolvedTasks(['t_alpha', 't_bravo', 't_charlie'])
+        self.assertUnresolvedInstances(
+            ['t_alpha#0', 't_bravo#0', 't_charlie#0', 't_charlie#1'],
+        )
 
         self.manager.fire('dataReceived', {'counter': 3})
         ThreadingTaskRunner.join_all()
@@ -1055,6 +1153,9 @@ class TriggerManagerAndEveryTestCase(
             },
         })
 
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
+
         self.manager.fire('dataReceived', {'counter': 4})
         ThreadingTaskRunner.join_all()
 
@@ -1083,3 +1184,6 @@ class TriggerManagerAndEveryTestCase(
                 'creditsDepleted': {'counter': 2},
             },
         })
+
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])

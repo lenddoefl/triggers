@@ -66,11 +66,6 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         self.manager.fire('_finishStep')
         ThreadingTaskRunner.join_all()
 
-        # In a real-world scenario, the status of the matching steps
-        # would actually be 'scheduled', but because Celery tasks
-        # operate in eager mode during unit tests, the tasks get
-        # executed immediately.
-
         # This task config has no kwargs, so no `name` was passed to
         # the task.
         self.assertInstanceFinished('t_alpha#0', {
@@ -90,6 +85,14 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
 
         # This task doesn't run because its trigger never fired.
         self.assertInstanceMissing('t_charlie#0')
+
+        # ``t_charlie`` is the only unresolved task.
+        self.assertUnresolvedTasks(['t_charlie'])
+
+        # There are no unresolved instances, because the trigger
+        # manager never created any instances for ``t_charlie`` (none
+        # of its triggers fired).
+        self.assertUnresolvedInstances([])
 
     def test_fire_kwargs(self):
         """
@@ -163,6 +166,14 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         # This task doesn't run because its trigger never fired.
         self.assertInstanceMissing('t_charlie#0')
 
+        # ``t_charlie`` is the only unresolved task.
+        self.assertUnresolvedTasks(['t_charlie'])
+
+        # There are no unresolved instances, because the trigger
+        # manager never created any instances for ``t_charlie`` (none
+        # of its triggers fired).
+        self.assertUnresolvedInstances([])
+
     def test_fire_complex_trigger(self):
         """
         Invoking a task that requires multiple triggers to fire.
@@ -215,6 +226,12 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         self.assertInstanceUnstarted('t_bravo#0')
         self.assertInstanceUnstarted('t_psych2#0')
 
+        # Everything is unresolved at this point.
+        self.assertUnresolvedTasks(['t_alpha', 't_bravo', 't_psych2'])
+
+        # Each task has a corresponding unresolved instance.
+        self.assertUnresolvedInstances(['t_alpha#0', 't_bravo#0', 't_psych2#0'])
+
         # Once both triggers fire, then the task runs.
         # Note that the task receives both sets of kwargs.
         self.manager.fire('creditsDepleted')
@@ -222,8 +239,8 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
 
         self.assertInstanceFinished('t_alpha#0', {
             'kwargs': {
-                'dataReceived':   {},
-                'creditsDepleted':       {},
+                'dataReceived':     {},
+                'creditsDepleted':  {},
             },
         })
 
@@ -231,17 +248,21 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         # Note that the keys do not have to match trigger names.
         self.assertInstanceFinished('t_bravo#0', {
             'kwargs': {
-                # Don't get excited; I'm just listing them
-                # alphabetically.
-                'dataReceived':       {'name': 'Han'},
-                'calibration':  {'name': 'Greedo'},
-                'creditsDepleted':           {},
+                # Remember: order of operations doesn't matter to the
+                # triggers framework (good advice for us all, really).
+                'dataReceived':     {'name': 'Han'},
+                'calibration':      {'name': 'Greedo'},
+                'creditsDepleted':  {},
             },
         })
 
         # ``t_psych2`` doesn't get run because it is still waiting for
         # the `registerComplete` trigger to fire.
         self.assertInstanceUnstarted('t_psych2#0')
+
+        # At this point, only ``t_psych2#0`` is unresolved.
+        self.assertUnresolvedTasks(['t_psych2'])
+        self.assertUnresolvedInstances(['t_psych2#0'])
 
     def test_fire_complex_trigger_kwargs(self):
         """
@@ -302,6 +323,12 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         self.assertInstanceUnstarted('t_bravo#0')
         self.assertInstanceUnstarted('t_psych2#0')
 
+        # Everything is unresolved at this point.
+        self.assertUnresolvedTasks(['t_alpha', 't_bravo', 't_psych2'])
+
+        # Each task has a corresponding unresolved instance.
+        self.assertUnresolvedInstances(['t_alpha#0', 't_bravo#0', 't_psych2#0'])
+
         # ... but none for ``creditsDepleted``.
         self.manager.fire('creditsDepleted')
         ThreadingTaskRunner.join_all()
@@ -341,6 +368,10 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         })
 
         self.assertInstanceUnstarted('t_psych2#0')
+
+        # At this point, only ``t_psych2#0`` is unresolved.
+        self.assertUnresolvedTasks(['t_psych2'])
+        self.assertUnresolvedInstances(['t_psych2#0'])
 
     def test_fire_cascade(self):
         """
@@ -434,6 +465,10 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
             },
         })
 
+        # Everything is resolved at this point.
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
+
     def test_fire_cascade_kwargs(self):
         """
         Firing a trigger successfully causes subsequent triggers to
@@ -512,6 +547,10 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
             },
         })
 
+        # Everything is resolved at this point.
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
+
     def test_fire_cascade_complex_trigger(self):
         """
         Firing a trigger successfully causes cascade, but matching
@@ -550,6 +589,12 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         self.assertInstanceMissing('t_bravo#0')
         self.assertInstanceMissing('t_charlie#0')
 
+        # Everything is unresolved at this point.
+        self.assertUnresolvedTasks(['t_alpha', 't_bravo', 't_charlie'])
+
+        # Only ``t_alpha`` has an instance, however.
+        self.assertUnresolvedInstances(['t_alpha#0'])
+
         self.manager.fire('creditsDepleted')
         ThreadingTaskRunner.join_all()
 
@@ -582,6 +627,10 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         })
 
         self.assertInstanceUnstarted('t_charlie#0')
+
+        # ``t_charlie`` is still unresolved.
+        self.assertUnresolvedTasks(['t_charlie'])
+        self.assertUnresolvedInstances(['t_charlie#0'])
 
     def test_fire_cascade_complex_trigger_reverse(self):
         """
@@ -621,6 +670,9 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         self.assertInstanceUnstarted('t_bravo#0')
         self.assertInstanceMissing('t_charlie#0')
 
+        self.assertUnresolvedTasks(['t_alpha', 't_bravo', 't_charlie'])
+        self.assertUnresolvedInstances(['t_bravo#0'])
+
         self.manager.fire('dataReceived')
         ThreadingTaskRunner.join_all()
 
@@ -652,6 +704,9 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
         })
 
         self.assertInstanceUnstarted('t_charlie#0')
+
+        self.assertUnresolvedTasks(['t_charlie'])
+        self.assertUnresolvedInstances(['t_charlie#0'])
 
     def test_redundant_trigger(self):
         """
@@ -713,6 +768,9 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
                 },
             },
         })
+
+        self.assertUnresolvedTasks([])
+        self.assertUnresolvedInstances([])
 
     def test_update_task_metadata(self):
         """

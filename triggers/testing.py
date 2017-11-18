@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function, \
 
 from abc import ABCMeta
 from pprint import pformat
-from typing import Mapping, Optional, Text
+from typing import List, Mapping, Optional, Text
 from unittest import TestCase
 
 import filters as f
@@ -233,3 +233,35 @@ class TriggerManagerTestCaseMixin(with_metaclass(ABCMeta, TestCase)):
         not started yet.
         """
         self.assertInstanceStatus(instance_name, TaskInstance.STATUS_UNSTARTED)
+
+    def assertUnresolvedTasks(self, task_names):
+        # type: (List[Text]) -> None
+        """
+        Asserts that the manager has the correct unresolved tasks.
+
+        :param task_names:
+            List of task names, sorted alphabetically.
+        """
+        self.assertListEqual(
+            list(sorted(
+                t.name for t in self.manager.storage.get_unresolved_tasks()
+            )),
+
+            task_names,
+        )
+
+    def assertUnresolvedInstances(self, instance_names):
+        # type: (List[Text]) -> None
+        """
+        Asserts that the manager has the correct unresolved instances.
+
+        :param instance_names:
+            List of instance names, sorted alphabetically.
+        """
+        self.assertListEqual(
+            list(sorted(
+                i.name for i in self.manager.storage.get_unresolved_instances()
+            )),
+
+            instance_names,
+        )
