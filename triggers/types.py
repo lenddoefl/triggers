@@ -59,6 +59,12 @@ class TaskConfig(object):
     def __str__(self):
         return self.name
 
+    def __repr__(self):
+        return '<{type} {name!r}>'.format(
+            name    = self.name,
+            type    = type(self).__name__,
+        )
+
     @property
     def after_sorted(self):
         # type: () -> List[Text]
@@ -186,6 +192,12 @@ class TaskInstance(object):
         return '{name} ({status})'.format(
             name    = self.name,
             status  = self.status,
+        )
+
+    def __repr__(self):
+        return '<{type} {name!r}>'.format(
+            name = self.name,
+            type = type(self).__name__
         )
 
     @property
