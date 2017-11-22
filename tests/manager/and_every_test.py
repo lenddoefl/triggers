@@ -10,6 +10,10 @@ from triggers.storage_backends.base import storage_backends
 from triggers.storage_backends.cache import CacheStorageBackend
 from triggers.testing import PassThruTask, TriggerManagerTestCaseMixin
 
+__all__ = [
+    'TriggerManagerAndEveryTestCase',
+]
+
 
 class TriggerManagerAndEveryTestCase(
         TriggerManagerTestCaseMixin,

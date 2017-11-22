@@ -11,6 +11,10 @@ from triggers.storage_backends.base import storage_backends
 from triggers.storage_backends.cache import CacheStorageBackend
 from triggers.testing import DevNullTask, TriggerManagerTestCaseMixin
 
+__all__ = [
+    'TriggerManagerUnlessTestCase',
+]
+
 
 class TriggerManagerUnlessTestCase(TriggerManagerTestCaseMixin, TestCase):
     """

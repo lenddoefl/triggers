@@ -13,6 +13,10 @@ from triggers.testing import DevNullTask, PassThruTask, \
     TriggerManagerTestCaseMixin
 from triggers.types import TaskInstance
 
+__all__ = [
+    'TriggerManagerFireTestCase',
+]
+
 
 class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
     """

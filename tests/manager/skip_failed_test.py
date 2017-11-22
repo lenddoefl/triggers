@@ -11,6 +11,10 @@ from triggers.storage_backends.cache import CacheStorageBackend
 from triggers.testing import FailingTask, PassThruTask, \
     TriggerManagerTestCaseMixin
 
+__all__ = [
+    'TriggerManagerSkipFailedTestCase',
+]
+
 
 class TriggerManagerSkipFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
     """
