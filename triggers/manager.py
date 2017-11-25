@@ -59,7 +59,7 @@ class TriggerManager(object):
 
         self.storage = storage
 
-    def update_configuration(self, config):
+    def update_configuration(self, configuration):
         # type: (Mapping[Text, Mapping]) -> None
         """
         Updates and persists the trigger configuration.
@@ -73,11 +73,42 @@ class TriggerManager(object):
            The trigger manager will NOT apply previously-fired triggers
            to the new configuration!
 
-        :param config:
-            Object containing trigger task definitions.
+           Additionally, bad things can happen if you replace trigger
+           tasks that has unresolved task instances.  Try really hard
+           not to do that.
+
+           I guess what I'm trying to say here is, only call this
+           method at the start of the session, unless you are 110% sure
+           that you know exactly what you are doing!
+
+        :param configuration:
+            Dict containing new trigger task definitions.
+
+            In the event of a conflict, the trigger tasks in this dict
+            will replace the existing ones with the same name(s).
         """
         with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
-            writable_storage.update_config(config)
+            # Note that we only update the configuration; we do not
+            # attempt to apply previously-fired triggers, create
+            # instances, etc.
+            #
+            # This is extremely difficult to do properly, and in some
+            # cases it may even be impossible.  Examples of some really
+            # nasty edge cases:
+            #
+            # - Adding a new task after all of the triggers in both its
+            #   ``after`` and ``unless`` clauses have fired - should
+            #   the new instance be scheduled or abandoned?
+            #
+            # - Adding a new task with ``andEvery`` - how to determine
+            #   how many task instances to create?
+            #
+            # - Changing the configuration for a task that already has
+            #   unstarted instance(s).  Lots of potential for weird
+            #   things to happen there!
+            #
+            # And so on.
+            writable_storage.update_configuration(configuration)
             writable_storage.save()
 
     def fire(self, trigger_name, trigger_kwargs=None):

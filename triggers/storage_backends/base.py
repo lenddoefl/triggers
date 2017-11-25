@@ -115,7 +115,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
 
         :return:
             Trigger task configuration (i.e., a value that could be
-            passed to :py:meth:`update_config`).
+            passed to :py:meth:`update_configuration`).
         """
         return None
 
@@ -394,7 +394,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
         self._instances = None
         self._metas     = None
 
-    def update_config(self, config_dict):
+    def update_configuration(self, config_dict):
         # type: (Mapping[Text, Mapping]) -> None
         """
         Updates the configuration from a dict.
