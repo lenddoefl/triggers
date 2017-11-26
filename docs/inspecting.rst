@@ -158,13 +158,133 @@ invoke the ``debug_repr`` method:
    post a feature request on the `Triggers Framework Bug Tracker`_ so that we
    can take a look!
 
+--------------
+Error Recovery
+--------------
+On occasion, a trigger task instance may fail (e.g., due to an uncaught
+exception).
 
-- manipulating state
-   - update configuration (add task)
-   - create instance
-   - change instance status
-- error recovery
-   - replaying failed tasks
-   - skipping failed tasks
+When this happens, you can recover by replaying or skipping the failed
+instance(s).
+
+.. tip::
+
+   If the instance fails due to an uncaught exception, the exception and
+   traceback will be stored in the failed instance's metadata so that you can
+   inspect them.
+
+   To access these values, find the :py:class:`TaskInstance` and inspect its
+   :py:attr:`metadata` value:
+
+   .. code-block:: python
+
+      failed_instance =\
+        trigger_manager.storage.instances['t_importSubject#0']
+
+      pprint(failed_instance.metadata)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Replaying Failed Task Instances
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To replay a failed task invoke the trigger manager's
+:py:meth:`replay_failed_instance` method, e.g.:
+
+.. code-block:: python
+
+   trigger_manager.replay_failed_instance('t_importSubject#0')
+
+Note that you must provide the name of the **instance** that failed, not the
+**task**.
+
+The trigger manager will *clone the failed instance* and schedule it for
+execution immediately.
+
+The failed instance's status will be changed to "replayed" (see :doc:`status`),
+but otherwise it remains unchanged.  This allows you to trace the history of a
+failed task, retain the original exception details, etc.
+
+If necessary/desired, you may replay the instance with different trigger kwargs:
+
+.. code-block:: python
+
+   trigger_manager.replay_failed_instance(
+     failed_instance = 't_importSubject#0',
+
+     replacement_kwargs = {
+       'firstPageReceived':      {'responses': {...}},
+       'questionnaireComplete':  {},
+     },
+   )
+
+.. important::
+
+   The replacement kwargs will be used *instead of* the trigger kwargs provided
+   to the failed instance.  If you only want to change some of the trigger
+   kwargs for the replayed instance, you will need to merge them manually.
+
+   Example:
+
+   .. code-block:: python
+
+      failed_instance =\
+        trigger_manager.storage.instances['t_importSubject#0']
+
+      # Change the ``firstPageReceived`` trigger kwargs
+      # for the replay, but keep the rest the same.
+      replacement_kwargs = failed_instance.kwargs
+      replacement_kwargs['firstPageReceived'] = {'responses': {...}}
+
+      trigger_manager.replay_failed_instance(
+        failed_instance,
+        replacement_kwargs,
+      )
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Skipping Failed Task Instances
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Sometimes there is just no way to recover a failed task instance, but you still
+want to mark it as resolved, or to simulate a successful result so that other
+tasks can still run (i.e., simulate a :doc:`cascade <tasks>`).
+
+To accomplish this, invoke the :py:meth:`skip_failed_instance` method:
+
+.. code-block:: python
+
+   trigger_manager.skip_failed_instance('t_importSubject#0')
+
+Note that you must provide the name of the **instance** that failed, not the
+**task**.
+
+The trigger manager will change the status of the instance from "failed" to
+"skipped" (see :doc:`status`).
+
+By default, marking a failed instance as skipped will not cause a cascade, so
+any tasks that depend on the failed one won't be able to run.
+
+In many cases, this is actually the desired behavior, but if you would like to
+force a cascade anyway, you can simulate a successful result:
+
+.. code-block:: python
+
+   trigger_manager.skip_failed_instance(
+     failed_instance = 't_importSubject#0',
+
+     # Trigger a cascade.
+     cascade = True,
+
+     # Simulate the result from ``t_importSubject#0``.
+     result = {'subjectId': 42},
+   )
+
+The above code has basically the same effect as if the ``t_importSubject#0``
+instance finished successfully and caused a cascade:
+
+.. code-block:: python
+
+   trigger_manager.fire(
+     trigger_name    = 't_importSubject',
+     trigger_kwargs  = {'subjectId': 42},
+   )
+
 
 .. _Triggers Framework Bug Tracker: https://github.com/eflglobal/triggers/issues
