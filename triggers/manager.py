@@ -207,7 +207,7 @@ class TriggerManager(object):
 
                 for ti in task_instances:
                     if ti.can_abandon:
-                        self.update_task_status(
+                        self.update_instance_status(
                             ti.name,
                             TaskInstance.STATUS_ABANDONED,
                         )
@@ -232,18 +232,19 @@ class TriggerManager(object):
 
         self._post_fire(trigger_name, tasks_ready)
 
-    def skip_failed_task(self, instance_name, cascade=False, result=None):
-        # type: (Text, bool, Optional[Mapping]) -> None
+    def skip_failed_instance(self, failed_instance, cascade=False, result=None):
+        # type: (Optional[Text, TaskInstance], bool, Optional[Mapping]) -> None
         """
-        Marks a failed task as skipped.
+        Marks a failed task instance as skipped.
 
         Note: This change is persisted immediately!
 
-        :param instance_name:
-            The name of the task instance to update.
+        :param failed_instance:
+            The name of, or reference to, the task instance to update.
 
         :param cascade:
-            Whether to fire the skipped task's trigger.
+            Whether to simulate a cascade (fire the skipped task's name
+            as a trigger).
 
         :param result:
             Simulated result from the skipped task.
@@ -252,75 +253,80 @@ class TriggerManager(object):
         :raise:
             - ValueError if the corresponding task is not failed.
         """
-        task_instance = self.storage[instance_name]
+        if not isinstance(failed_instance, TaskInstance):
+            failed_instance = self.storage[failed_instance]
 
-        if not task_instance.can_skip:
+        if not failed_instance.can_skip:
             raise ValueError(
-                'Task "{task}" in {status} state cannot be skipped!'.format(
-                    task    = instance_name,
-                    status  = self.storage[instance_name].status,
+                'Instance "{instance}" in {status} state '
+                'cannot be skipped!'.format(
+                    instance    = failed_instance,
+                    status      = failed_instance.status,
                 ),
             )
 
         if result is None:
             result = {}
 
-        self.update_task_status(
-            instance_name   = instance_name,
+        self.update_instance_status(
+            cascade         = cascade,
+            cascade_kwargs  = result,
             status          = TaskInstance.STATUS_SKIPPED,
+            task_instance   = failed_instance,
 
             metadata = {
                 'cascade':  cascade,
                 'result':   result,
             },
-
-            cascade         = cascade,
-            cascade_kwargs  = result,
         )
 
-        self._post_skip(task_instance, cascade)
+        self._post_skip(failed_instance, cascade)
 
-    def replay_failed_task(self, instance_name, replacement_kwargs=None):
-        # type: (Text, Optional[Mapping]) -> None
+    def replay_failed_instance(self, failed_instance, replacement_kwargs=None):
+        # type: (Optional[Text, TaskInstance], Optional[Mapping]) -> None
         """
-        Replays a failed task, optionally with different kwargs.
+        Replays a failed task instance, optionally with different
+        kwargs.
 
-        :param instance_name:
-            The name of the task instance to update.
+        :param failed_instance:
+            The name of, or reference to, the task instance to replay.
 
         :param replacement_kwargs:
-            Replacement value for the replayed task's
+            Optional replacement value for the replayed instance's
             ``trigger_kwargs``.
 
             Note: This will replace the trigger kwargs completely, so
-            be sure to include all the relevant kwargs, even the ones
+            be sure to include *all* the relevant kwargs, even the ones
             that do not need to be changed!
 
             Important: If you do not want to modify the kwargs, set
             ``replacement_kwargs = None``; if you set
-            ``replacement_kwargs = {}``, the replayed task will be
+            ``replacement_kwargs = {}``, the replayed instance will be
             invoked without any kwargs!
 
         :raise:
-            - ValueError if the corresponding task is not failed.
+            - :py:class:`ValueError` if the corresponding instance is
+              not replayable.
         """
         with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
-            failed_task = writable_storage[instance_name]
+            if not isinstance(failed_instance, TaskInstance):
+                failed_instance = writable_storage[failed_instance]
 
-            if not failed_task.can_replay:
+            if not failed_instance.can_replay:
                 raise ValueError(
-                'Task "{task}" in {status} state cannot be replayed!'.format(
-                    task    = instance_name,
-                    status  = writable_storage[instance_name].status,
+                    'Instance "{instance}" in {status} state '
+                    'cannot be replayed!'.format(
+                        instance    = failed_instance,
+                        status      = failed_instance.status,
                 ),
             )
 
             # Keep the failed task; just mark it as replayed.
-            failed_task.status = TaskInstance.STATUS_REPLAYED
+            failed_instance.status = TaskInstance.STATUS_REPLAYED
 
             # Create a new task instance for the replay, so that we can
             # keep track of the result.
-            replay_task = writable_storage.clone_instance(failed_task)
+            replay_task = writable_storage.clone_instance(failed_instance)
 
             if replacement_kwargs is not None:
                 replay_task.kwargs = replacement_kwargs
@@ -330,18 +336,19 @@ class TriggerManager(object):
 
             self._schedule_task(replay_task)
 
-        self._post_replay(failed_task)
+        self._post_replay(failed_instance)
 
-    def update_task_metadata(self, instance_name, metadata):
-        # type: (Text, Mapping) -> None
+    def update_instance_metadata(self, task_instance, metadata):
+        # type: (Union[Text, TaskInstance], Mapping) -> None
         """
         Updates a task instance's metadata.
 
         This method does not change the instance's status; use
-        :py:meth:`update_task_status` for that.
+        :py:meth:`update_instance_status` for that.
         """
         with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
-            task_instance = writable_storage[instance_name]
+            if not isinstance(task_instance, TaskInstance):
+                task_instance = writable_storage[task_instance]
 
             task_instance.metadata.update(metadata or {})
 
@@ -349,20 +356,20 @@ class TriggerManager(object):
 
             writable_storage.save()
 
-    def update_task_status(
+    def update_instance_status(
             self,
-            instance_name,
-            status,
-            metadata = None,
-            cascade = False,
-            cascade_kwargs = None,
+            task_instance,              # type: Union[Text, TaskInstance]
+            status,                     # type: Text
+            metadata        = None,     # type: Optional[Mapping]
+            cascade         = False,    # type: bool
+            cascade_kwargs  = None,     # type: Optional[Mapping]
     ):
-        # type: (Text, Text, Optional[Mapping], bool, Optional[Mapping]) -> None
+        # type: (...) -> TaskInstance
         """
         Updates the status of a task instance.
 
-        :param instance_name:
-            The name of the task instance to update.
+        :param task_instance:
+            The name of, or reference to, the task instance to update.
 
         :param status:
             The new status to set.
@@ -384,9 +391,21 @@ class TriggerManager(object):
         :param cascade_kwargs:
             Keyword arguments to pass to :py:meth:`fire` when
             cascading.
+
+        :return:
+            The updated TaskInstance object.
+
+            Note that in some cases this may be a different object than
+            the ``task_instance`` that was passed in (due to the way
+            acquiring lock works).
         """
         with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
-            task_instance = writable_storage[instance_name]
+            # Acquiring lock purges the local cache, so we need to
+            # reload the instance, to ensure we aren't working with a
+            # stale object.
+            if isinstance(task_instance, TaskInstance):
+                task_instance = task_instance.name
+            task_instance = writable_storage[task_instance]
 
             task_instance.status = status
             task_instance.metadata.update(metadata or {})
@@ -398,6 +417,8 @@ class TriggerManager(object):
         if cascade:
             # Cascade, triggering any tasks that depend on this one.
             self.fire(task_instance.config.name, cascade_kwargs)
+
+        return task_instance
 
     def _schedule_task(self, task_instance):
         # type: (TaskInstance) -> None
@@ -425,8 +446,8 @@ class TriggerManager(object):
         with self.storage.acquire_lock():
             runner.run(self, task_instance)
 
-            self.update_task_status(
-                instance_name   = task_instance.name,
+            self.update_instance_status(
+                task_instance   = task_instance.name,
                 status          = TaskInstance.STATUS_SCHEDULED,
             )
 

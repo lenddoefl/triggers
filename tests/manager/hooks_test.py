@@ -145,7 +145,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         # Replaying the failed task doesn't fire any triggers, so
         # the post-fire hook does not get called.
         del self.post_fire_calls[:]
-        self.manager.replay_failed_task('t_failingTask#0')
+        self.manager.replay_failed_instance('t_failingTask#0')
         ThreadingTaskRunner.join_all()
 
         # Quick sanity check (this also refreshes the task instance
@@ -190,7 +190,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         # Skipping the task instance without cascade does not fire
         # any triggers, so the post-fire hook is not invoked.
         del self.post_fire_calls[:]
-        self.manager.skip_failed_task('t_failingTask#0', cascade=False)
+        self.manager.skip_failed_instance('t_failingTask#0', cascade=False)
 
         self.assertListEqual(self.post_fire_calls, [])
 
@@ -204,7 +204,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         # metadata).
         self.assertInstanceFailed('t_failingTask#1', RuntimeError)
 
-        self.manager.skip_failed_task('t_failingTask#1', cascade=True)
+        self.manager.skip_failed_instance('t_failingTask#1', cascade=True)
 
         self.assertListEqual(
             self.post_fire_calls,
@@ -240,7 +240,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         # Replaying the failed task will, naturally, invoke the
         # post-replay hook.
         del self.post_replay_calls[:]
-        self.manager.replay_failed_task('t_failingTask#0')
+        self.manager.replay_failed_instance('t_failingTask#0')
         ThreadingTaskRunner.join_all()
 
         # Quick sanity check (this also refreshes the task instance
@@ -254,7 +254,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         # Skipping a failed task does not invoke the post-replay
         # hook, even if it cascades.
         del self.post_replay_calls[:]
-        self.manager.skip_failed_task('t_failingTask#1', cascade=True)
+        self.manager.skip_failed_instance('t_failingTask#1', cascade=True)
         self.assertListEqual(self.post_replay_calls, [])
 
     def test_hook_post_skip(self):
@@ -287,7 +287,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         # Replaying a failed task does not invoke the post-skip
         # hook.
         del self.post_skip_calls[:]
-        self.manager.replay_failed_task('t_failingTask#0')
+        self.manager.replay_failed_instance('t_failingTask#0')
         ThreadingTaskRunner.join_all()
 
         self.assertListEqual(self.post_skip_calls, [])
@@ -299,7 +299,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         ##
         # Skipping the failed instance will, naturally, invoke
         # the post-skip handler.
-        self.manager.skip_failed_task('t_failingTask#1', cascade=False)
+        self.manager.skip_failed_instance('t_failingTask#1', cascade=False)
 
         self.assertListEqual(
             self.post_skip_calls,
@@ -317,7 +317,7 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         # metadata).
         self.assertInstanceFailed('t_failingTask#2', RuntimeError)
 
-        self.manager.skip_failed_task('t_failingTask#2', cascade=True)
+        self.manager.skip_failed_instance('t_failingTask#2', cascade=True)
 
         self.assertListEqual(
             self.post_skip_calls,

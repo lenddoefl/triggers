@@ -806,8 +806,8 @@ class TriggerManagerFireTestCase(TriggerManagerTestCaseMixin, TestCase):
 
             writable_storage.save()
 
-        self.manager.update_task_metadata(
-            instance_name = 't_alpha#0',
+        self.manager.update_instance_metadata(
+            task_instance = 't_alpha#0',
 
             metadata = {
                 'foo': 'bar',

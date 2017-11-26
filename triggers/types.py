@@ -166,7 +166,7 @@ class TaskInstance(object):
     # status change.
     #
     # References:
-    #   - :py:meth:`common.triggers.manager.TriggerManager.update_task_status`
+    #   - :py:meth:`common.triggers.manager.TriggerManager.update_instance_status`
     #
     TIMESTAMP_CREATED       = 'created'
     TIMESTAMP_LAST_MODIFIED = 'lastModified'

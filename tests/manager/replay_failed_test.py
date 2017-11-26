@@ -28,10 +28,10 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
 
         self.manager = trigger_managers.get('default', storage=storage) # type: TriggerManager
 
-    def test_replay_failed_task(self):
+    def test_replay_failed_instance(self):
         """
-        Replaying a failed task (e.g., after fixing a problem with the
-        stored data that caused the failure).
+        Replaying a failed task instance (e.g., after fixing a problem
+        with the stored data that caused the failure).
         """
         self.manager.update_configuration({
             't_alpha': {
@@ -66,7 +66,7 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
             },
         })
 
-        self.manager.replay_failed_task('t_alpha#0')
+        self.manager.replay_failed_instance('t_alpha#0')
         ThreadingTaskRunner.join_all()
 
         # The original instance is marked as replayed.
@@ -134,8 +134,8 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
 
         # When replaying a failed task, you have to specify which
         # triggers you want to change kwargs for!
-        self.manager.replay_failed_task(
-            instance_name = 't_alpha#0',
+        self.manager.replay_failed_instance(
+            failed_instance = 't_alpha#0',
 
             replacement_kwargs = {
                 # I think that's the last of them.
@@ -194,9 +194,9 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
         self.assertUnresolvedTasks([])
         self.assertUnresolvedInstances([])
 
-    def test_cannot_replay_non_failed_task(self):
+    def test_cannot_replay_non_failed_instance(self):
         """
-        Attempting to replay a task that didn't fail.
+        Attempting to replay a task instance that didn't fail.
         """
         self.manager.update_configuration({
             't_alpha': {
@@ -209,4 +209,4 @@ class TriggerManagerReplayFailedTestCase(TriggerManagerTestCaseMixin, TestCase):
         ThreadingTaskRunner.join_all()
 
         with self.assertRaises(ValueError):
-            self.manager.replay_failed_task('t_alpha#0')
+            self.manager.replay_failed_instance('t_alpha#0')

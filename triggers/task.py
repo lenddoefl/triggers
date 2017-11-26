@@ -304,8 +304,8 @@ def task_body(target):
                 kwargs,
             )
 
-        context.manager.update_task_status(
-            instance_name   = context.instance_name,
+        context.manager.update_instance_status(
+            task_instance   = context.instance_name,
             status          = TaskInstance.STATUS_RUNNING,
 
             metadata = {
@@ -322,7 +322,7 @@ def task_body(target):
 
             #
             # If ``result`` is not a mapping (dict), the call to
-            # ``manager.update_task_status`` will blow up anyway,
+            # ``manager.update_instance_status`` will blow up anyway,
             # but the error message will be a tad vague, so we'll
             # do an explicit type check so that we can provide a
             # more helpful error message.
@@ -343,8 +343,8 @@ def task_body(target):
                 )
 
             # noinspection PyArgumentList
-            context.manager.update_task_status(
-                instance_name   = context.instance_name,
+            context.manager.update_instance_status(
+                task_instance   = context.instance_name,
                 status          = TaskInstance.STATUS_FINISHED,
 
                 metadata = {
@@ -363,22 +363,22 @@ def task_body(target):
             # Task halted prematurely, but this was done
             # deliberately, so that the task instance can set its
             # own status.
-            context.manager.update_task_status(
-                instance_name   = context.instance_name,
+            context.manager.update_instance_status(
+                task_instance   = context.instance_name,
                 status          = e.status,
                 metadata        = e.metadata,
             )
 
             if isinstance(e, Retry):
-                context.manager.replay_failed_task(
-                    instance_name       = context.instance_name,
+                context.manager.replay_failed_instance(
+                    failed_instance= context.instance_name,
                     replacement_kwargs  = e.replacement_kwargs,
                 )
         except Exception as e:
             # Ensure the exception updates the task status, but
             # do not prevent it from propagating.
-            context.manager.update_task_status(
-                instance_name   = context.instance_name,
+            context.manager.update_instance_status(
+                task_instance   = context.instance_name,
                 status          = TaskInstance.STATUS_FAILED,
 
                 metadata = {
