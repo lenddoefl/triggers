@@ -34,8 +34,8 @@ Prerequisites
 The Triggers framework requires:
 
 - Python 2.7, 3.5 or 3.6
-- Django (any version, but >= 1.11 preferred).
-- Celery (>= 3, but >= 4 preferred).
+- Django (any version, but >= 1.11 preferred)
+- Celery (>= 3, but >= 4 preferred)
 - django-redis-cache
 - python-redis-lock==2.3.0
 

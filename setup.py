@@ -4,15 +4,24 @@
 from __future__ import absolute_import, division, print_function
 
 from codecs import StreamReader, open
+from distutils.version import LooseVersion
 from os.path import dirname, join, realpath
 
 from setuptools import find_packages, setup
+from setuptools.version import __version__
 
-cwd = dirname(realpath(__file__))
+##
+# Because of the way we declare dependencies here, we need a more recent
+# version of setuptools.
+# https://www.python.org/dev/peps/pep-0508/#environment-markers
+if LooseVersion(__version__) < LooseVersion('20.5'):
+    raise EnvironmentError('Triggers requires setuptools 20.5 or later.')
+
 
 ##
 # Load long description for PyPi.
-with open(join(cwd, 'README.rst'), 'r', 'utf-8') as f: # type: StreamReader
+readme = join(dirname(realpath(__file__)), 'README.rst')
+with open(readme, 'r', 'utf-8') as f: # type: StreamReader
     long_description = f.read()
 
 ##
@@ -31,10 +40,15 @@ setup(
 
     install_requires = [
         'celery >= 3.0',
-        'class-registry',
-        'Django',
+        'class-registry >= 2.1.2',
         'django-redis',
         'filters',
+
+        # Django 2.0 does not support Python 3.
+        # Good on them, but we have legacy project to support over here in
+        # triggers land (:
+        'Django; python_version >= "3.0"',
+        'Django < 2.0; python_version < "3.0"',
 
         # Newer versions of python-redis-lock cause deadlocks.
         # Still investigating why this happens.

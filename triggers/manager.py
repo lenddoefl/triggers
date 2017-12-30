@@ -17,19 +17,6 @@ __all__ = [
 ]
 
 
-trigger_managers =\
-    EntryPointClassRegistry(
-        attr_name   = 'triggers__registry_key',
-        group       = 'triggers.managers',
-    ) # type: Union[EntryPointClassRegistry, Dict[Text, TriggerManager]]
-"""
-Registry of available TriggerManager classes.
-
-Register new trigger managers by adding ``triggers.managers`` entry
-points to your project's ``setup.py``.
-"""
-
-
 class TriggerManager(object):
     """
     Fires triggers, runs tasks, also makes julienne fries.
@@ -536,3 +523,16 @@ class TriggerManager(object):
             happens!
         """
         pass
+
+
+trigger_managers =\
+    EntryPointClassRegistry(
+        attr_name   = 'triggers__registry_key',
+        group       = 'triggers.managers',
+    ) # type: Union[EntryPointClassRegistry, Dict[Text, TriggerManager]]
+"""
+Registry of available TriggerManager classes.
+
+Register new trigger managers by adding ``triggers.managers`` entry
+points to your project's ``setup.py``.
+"""

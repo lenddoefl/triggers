@@ -58,7 +58,8 @@ class TriggerManagerHooksTestCase(TriggerManagerTestCaseMixin, TestCase):
         trigger_managers._get_cache()[self._testMethodName] =\
             PirateTriggerManager
         try:
-            self.manager = trigger_managers.get(self._testMethodName, storage=storage) # type: PirateTriggerManager
+            self.manager =\
+                trigger_managers.get(self._testMethodName, storage=storage) # type: PirateTriggerManager
 
             super(TriggerManagerHooksTestCase, self).run(result)
         finally:

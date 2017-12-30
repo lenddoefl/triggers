@@ -21,16 +21,6 @@ __all__ = [
 ]
 
 
-storage_backends =\
-    EntryPointClassRegistry(
-        attr_name   = 'triggers__registry_key',
-        group       = 'triggers.storage_backends',
-    ) # type: Union[EntryPointClassRegistry, Dict[Text, TriggerStorageBackend]]
-"""
-Registry of storage backends available to the triggers framework.
-"""
-
-
 class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
     """
     Base functionality for trigger storage backends.
@@ -540,3 +530,13 @@ class TaskInstanceCollection(dict):
         self._collections[task_config.name][name] = instance
 
         return instance
+
+
+storage_backends =\
+    EntryPointClassRegistry(
+        attr_name   = 'triggers__registry_key',
+        group       = 'triggers.storage_backends',
+    ) # type: Union[EntryPointClassRegistry, Dict[Text, TriggerStorageBackend]]
+"""
+Registry of storage backends available to the triggers framework.
+"""

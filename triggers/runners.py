@@ -35,16 +35,6 @@ __all__ = [
 ]
 
 
-task_runners =\
-    EntryPointClassRegistry(
-        attr_name   = 'triggers__registry_key',
-        group       = 'triggers.task_runners',
-    ) # type: Union[EntryPointClassRegistry, Dict[Text, BaseTaskRunner]]
-"""
-Registry of task runners available to the trigger manager.
-"""
-
-
 class BaseTaskRunner(with_metaclass(ABCMeta)):
     """
     A task runner is a class that accepts a task name and some kwargs
@@ -456,3 +446,13 @@ _threads = [] # type: List[Thread]
 
 
 DEFAULT_TASK_RUNNER = CeleryTaskRunner
+
+
+task_runners =\
+    EntryPointClassRegistry(
+        attr_name   = 'triggers__registry_key',
+        group       = 'triggers.task_runners',
+    ) # type: Union[EntryPointClassRegistry, Dict[Text, BaseTaskRunner]]
+"""
+Registry of task runners available to the trigger manager.
+"""

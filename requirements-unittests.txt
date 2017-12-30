@@ -6,4 +6,3 @@
 
 # Install test runner.
 django-nose
-tox
