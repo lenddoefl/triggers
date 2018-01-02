@@ -57,6 +57,10 @@ setup(
         'typing; python_version < "3.5"',
     ],
 
+    extras_require = {
+        'docs-builder': ['sphinx', 'sphinx_rtd_theme'],
+    },
+
     entry_points = {
         'triggers.storage_backends': [
             'cache=triggers.storage_backends.cache:CacheStorageBackend',
