@@ -85,6 +85,8 @@ The ``ImportSubject`` task's ``_run`` method (note the leading underscore) does
 3. Return the resulting ID value so that when the task cascades, other tasks
    will be able to use it (more on this later).
 
+.. _task_context:
+
 ------------
 Task Context
 ------------
