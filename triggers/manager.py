@@ -407,6 +407,16 @@ class TriggerManager(object):
 
         return task_instance
 
+    def mark_instance_logs_resolved(self, task_instance):
+        # type: (Union[TaskInstance, Text]) -> None
+        """
+        Marks the logs for the specified task instance as resolved.
+        """
+        self.update_instance_metadata(
+            task_instance   = task_instance,
+            metadata        = {TaskInstance.META_LOGS_RESOLVED: True},
+        )
+
     def _schedule_task(self, task_instance):
         # type: (TaskInstance) -> None
         """

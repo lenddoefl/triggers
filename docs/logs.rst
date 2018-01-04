@@ -28,6 +28,7 @@ object, with a couple of notable differences:
 - The max log level emitted by this logger is recorded by the trigger manager
   for later reference.
 
+
 -----------------
 Context Variables
 -----------------
@@ -102,6 +103,7 @@ dict.
             # log emitted by ``logger``.
             ...
 
+
 ~~~~~~~~~~~~~~~~~
 Exception Context
 ~~~~~~~~~~~~~~~~~
@@ -158,7 +160,46 @@ max log level emitted inside of that context.
 This enables your application to track task instance failure/success with a
 finer degree of granularity.
 
-.. todo
+For example, if you integrate a custom trigger manager with logic to
+:ref:`"finalize" a session <cookbook-finalizing>`, you may opt to have it only
+finalize the session only if none of the task instances emitted log messages
+with ``WARNING`` or higher level.
+
+
+~~~~~~~~~~~~~~~~~~~~~~~
+Task Instance Log Level
+~~~~~~~~~~~~~~~~~~~~~~~
+Once a task instance has finished running (successfully or otherwise), the max
+log level emitted is stored in its :py:attr:`log_level` property:
+
+.. code-block:: python
+
+   task_instance = trigger_manager.storage['t_importSubject#0']
+
+   task_instance.log_level       # e.g.: logging.INFO
+   task_instance.log_level_name  # e.g.: 'INFO'
+
+.. note::
+
+   If the task instance hasn't finished running yet, its :py:attr:`log_level`
+   will be ``NOTSET``.
+
+
+~~~~~~~~~~~~~~
+Resolving Logs
+~~~~~~~~~~~~~~
+In some cases, it may be necessary to mark a task instance's logs as "resolved".
+
+For example, a task instance may emit a ``WARNING`` or ``ERROR`` log, but the
+application determines that these logs are no longer relevant (e.g., a user
+reviewed them and addressed any issues manually).
+
+To resolve an instance's logs use the :py:meth:`mark_instance_logs_resolved`
+method:
+
+.. code-block:: python
+
+   trigger_manager.mark_instance_logs_resolved('t_importSubject#0')
 
 
 .. _logging module documentation: https://docs.python.org/3/library/logging.html#logging.debug
