@@ -149,6 +149,9 @@ alternate approach that uses ``context.filter_kwargs()`` instead:
    If you have worked with `FilterMappers`_ in the past, the above structure
    should look very familiar.
 
+
+.. _tasks-cascading:
+
 ---------
 Cascading
 ---------

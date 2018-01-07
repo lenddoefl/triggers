@@ -271,6 +271,8 @@ Here's an example of how our questionnaire application might fire the
    compatible with Celery's `serializer`_.
 
 
+.. _getting-started-initialize-configuration:
+
 Step 5:  Initialize Configuration
 ---------------------------------
 Next, you need to write the code that will initialize the configuration for each
