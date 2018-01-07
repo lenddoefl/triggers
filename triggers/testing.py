@@ -178,18 +178,19 @@ class TriggerManagerTestCaseMixin(with_metaclass(ABCMeta, TestCase)):
             ),
         )
 
-    def assertInstanceFinished(self, instance_name, expected_result):
-        # type: (Text, dict) ->  None
+    def assertInstanceFinished(self, instance_name, expected_result=None):
+        # type: (Text, Optional[dict]) ->  None
         """
-        Asserts that the specified task instance finished successfully
-        and returned the correct result.
+        Asserts that the specified task instance finished successfully,
+        and (optionally) that it returned the correct result.
         """
         self.assertInstanceStatus(instance_name, TaskInstance.STATUS_FINISHED)
 
-        self.assertEqual(
-            self.manager.storage[instance_name].metadata['result'],
-            expected_result,
-        )
+        if expected_result is not None:
+            self.assertEqual(
+                self.manager.storage[instance_name].metadata['result'],
+                expected_result,
+            )
 
     def assertInstanceReplayed(self, instance_name):
         # type: (Text) -> None
