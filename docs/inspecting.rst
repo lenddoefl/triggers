@@ -83,6 +83,8 @@ If you want to find all the instances for a particular task, use the
 In the above example, ``instances`` is a list of :py:class:`TaskInstance`
 objects.
 
+.. _inspecting-unresolved:
+
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Finding Unresolved Tasks and Instances
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -183,6 +185,8 @@ instance(s).
 
       pprint(failed_instance.metadata)
 
+.. _inspecting-replaying:
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Replaying Failed Task Instances
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -238,6 +242,8 @@ If necessary/desired, you may replay the instance with different trigger kwargs:
         failed_instance,
         replacement_kwargs,
       )
+
+.. _inspecting-skipping:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Skipping Failed Task Instances

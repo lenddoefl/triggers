@@ -11,7 +11,7 @@
    logs
    testing
    managers
-   backends
+   storage
    runners
    cookbook
 

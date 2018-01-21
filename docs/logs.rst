@@ -185,6 +185,8 @@ log level emitted is stored in its :py:attr:`log_level` property:
    will be ``NOTSET``.
 
 
+.. _logs-resolving:
+
 ~~~~~~~~~~~~~~
 Resolving Logs
 ~~~~~~~~~~~~~~

@@ -182,7 +182,7 @@ document database, etc.).
    If you use Redis as your cache backend, you can configure the Triggers
    framework so that it stores values with no expiration time.
 
-You can also :doc:`write your own storage backend <backends>`.
+You can also :doc:`write your own storage backend <storage>`.
 
 
 Step 4:  Fire Triggers
