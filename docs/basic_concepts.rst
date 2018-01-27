@@ -130,6 +130,9 @@ section.
 
    We will cover cascading in more detail in :doc:`/configuration`.
 
+
+.. _basic-concepts-task-instances:
+
 Task Instances
 --------------
 In certain cases, a task may run multiple times.  To accommodate this, the

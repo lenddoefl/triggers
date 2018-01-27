@@ -136,6 +136,8 @@ The following optional directives allow you to further customize the behavior of
 your trigger tasks.
 
 
+.. _configuration-and-every:
+
 ^^^^^^^^^^^^
 ``andEvery``
 ^^^^^^^^^^^^
