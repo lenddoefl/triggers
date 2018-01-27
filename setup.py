@@ -91,4 +91,7 @@ setup(
     keywords =
         'observer pattern, celery, django, redis, asynchronous tasks, '
         'scheduling',
+
+    author        = 'Phoenix Zerin',
+    author_email  = 'phx@phx.ph',
 )

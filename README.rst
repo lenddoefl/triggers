@@ -60,8 +60,6 @@ Install the Triggers framework using pip::
    pip install triggers
 
 
-.. _readme-installing-from-source:
-
 You can also install from source using the following commands::
 
    pip install -e git+https://github.com/eflglobal/triggers
@@ -72,7 +70,7 @@ Documentation
 =============
 The Triggers framework documentation is available on `ReadTheDocs`_.
 
-If you are :ref:`installing from source <readme-installing-from-source>`, you
+If you are installing from source (see above), you
 can also build the documentation locally:
 
 #. Install extra dependencies (you only have to do this once)::
