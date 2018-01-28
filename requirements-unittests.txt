@@ -1,8 +1,0 @@
-# This file defines additional requirements that must be installed in order to
-# run unit tests.  These dependencies are not required for a standard install.
-
-# Ensure that CommonLib dependencies are installed.
--e .
-
-# Install test runner.
-django-nose

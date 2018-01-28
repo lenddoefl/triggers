@@ -59,6 +59,7 @@ setup(
 
     extras_require = {
         'docs-builder': ['sphinx', 'sphinx_rtd_theme'],
+        'test-runner': ['detox', 'django-nose'],
     },
 
     entry_points = {

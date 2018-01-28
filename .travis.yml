@@ -7,8 +7,7 @@ python:
 services:
   - redis-server
 install:
-  - pip install .
-  - pip install -r requirements-unittests.txt
+  - pip install '.[test-runner]'
   - cp -n tests/settings.py.dist tests/settings.py
   - pip install docutils  # Used to check package metadata.
 script:
