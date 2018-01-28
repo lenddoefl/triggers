@@ -38,12 +38,13 @@ A session state is comprised of 3 primary components:
    :ref:`tasks that run multiple times <configuration-and-every>`.
 
 
+Working with Session State
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. todo list of methods
+
 
 --------------------------------
 Writing Your Own Storage Backend
 --------------------------------
-
-
-- writing your own
-  - loading and saving
-  - entry points
+.. todo loading and saving
+.. todo entry points
