@@ -70,8 +70,18 @@ Running Unit Tests
 To run unit tests after installing from source, you will need to do a little
 bit of one-time prep::
 
+  pip install -e '.[test-runner]'
+  cp tests/settings.py.dist tests/settings.py
 
-  python setup.py test
+.. tip::
+  By default, the unit tests expect a Redis server listening on
+  ``localhost:6379``.  If necessary, you can change this by editing
+  ``tests/settings.py``.
+
+Once you've set up the test environment, you can run the unit tests with the
+following command::
+
+  python manage.py test
 
 This project is also compatible with `tox`_, which will run the unit tests in
 different virtual environments (one for each supported version of Python).
@@ -84,6 +94,14 @@ dependencies, and then you can run the tests with the ``detox`` command::
 
   pip install -e '.[test-runner]'
   detox -v
+
+.. important::
+  Currently, ``tox.ini`` uses ``tests/settings.py.dist`` for the test settings.
+  In particular, this means that all of the unit tests run by tox depend on
+  having a Redis server listening on ``localhost:6379``, and there is currently
+  no way to change this (without voiding the warranty, that is).
+
+  This will be fixed in a future version of the library.
 
 
 =============
