@@ -107,6 +107,9 @@ The following hooks are supported:
      This method gets invoked **after** the cascade happens (i.e., after
      :py:meth:`_post_fire` is invoked).
 
+
+.. _managers-registering:
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Registering Your Trigger Manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -130,9 +133,9 @@ add the following to your project's ``setup.py`` file:
 
      entry_points = {
        'triggers.managers': [
-         'custom_manager = app.triggers:CustomManager'
-       ]
-     }
+         'custom_manager = app.triggers:CustomManager',
+       ],
+     },
    )
 
 .. tip::

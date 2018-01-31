@@ -151,6 +151,8 @@ troubleshooting efforts.
    :py:meth:`get_logger_context` block!
 
 
+.. _logs-tracking-log-levels:
+
 -------------------
 Tracking Log Levels
 -------------------

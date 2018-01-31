@@ -90,7 +90,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
         Loads configuration and status values from the backend.
 
         :return:
-            (task config, task status, meta status)
+            (task configs, task instances, session metadata)
         """
         raise NotImplementedError(
             'Not implemented in {cls}.'.format(cls=type(self).__name__),
