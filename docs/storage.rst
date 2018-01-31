@@ -9,7 +9,7 @@ The Triggers framework ships with a single storage backend that uses the Django
 cache to persist data.  However, you can write and use your own storage backend
 if desired.
 
-----------------------------
+
 Anatomy of a Storage Backend
 ----------------------------
 A session state is comprised of 3 primary components:
@@ -95,7 +95,6 @@ tasks and instances:
    be used internally.
 
 
---------------------------------
 Writing Your Own Storage Backend
 --------------------------------
 To create your own storage backend, you only need to define methods to load and

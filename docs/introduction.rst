@@ -16,8 +16,9 @@ are:
 - It uses an intuitive JSON configuration schema, allowing administrators to
   create complex workflows without having to write any (Python) code.
 
+
 What Are Triggers Useful For
-============================
+----------------------------
 The Triggers framework may be a good fit for your application if:
 
 - It needs to be able to schedule asynchronous tasks when sets of 2 or more
@@ -33,9 +34,9 @@ perhaps the two modules arrive out-of-order, or even at the same time.
 
 The Triggers framework would be a good fit for this application.
 
-What Are Triggers Not Useful For
-================================
 
+What Are Triggers Not Useful For
+--------------------------------
 If your application:
 
 - Is not distributed (e.g., only has one application server), or
@@ -51,9 +52,9 @@ In this case, you wouldn't need to use the Triggers framework because your
 application would not need to keep track of which modules were received across
 multiple web service requests.
 
-=============
+
 Configuration
-=============
+-------------
 Let's go back to the example survey application, and see how we might configure
 the Triggers framework to execute an asynchronous task after modules 1 and 4 are
 received:

@@ -8,7 +8,6 @@ Fortunately, the Triggers framework comes with a unit testing toolbox that makes
 it super easy to write tests for your trigger tasks!
 
 
-----------
 Test Cases
 ----------
 When writing a test case for a trigger task, ensure that it:
@@ -34,7 +33,6 @@ When writing a test case for a trigger task, ensure that it:
    each test.
 
 
------
 Tests
 -----
 When writing individual tests, they should conform to the following structure:
@@ -101,7 +99,6 @@ Here's an example:
      # etc.
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1. Configure trigger tasks.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 At the start of each test (or in your test case's :py:meth:`setUp` method),
@@ -128,7 +125,6 @@ Note that this is the same code that your application uses to
    This can be used to test entire workflows, not just individual trigger tasks.
 
 
-~~~~~~~~~~~~~~~~~
 2. Fire triggers.
 ~~~~~~~~~~~~~~~~~
 Once the trigger manager has been configured, the next step is to fire triggers
@@ -147,7 +143,6 @@ For example:
    self.manager.fire('questionnaireComplete')
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 3. Wait for tasks to complete.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 During unit tests, the trigger manager will automatically use
@@ -179,7 +174,6 @@ immediately after firing triggers:
    same test, if necessary.
 
 
-~~~~~~~~~~~~~~~~~~~~~~
 4. Perform assertions.
 ~~~~~~~~~~~~~~~~~~~~~~
 Finally, once all of the trigger tasks have finished, you can begin adding
@@ -187,7 +181,6 @@ assertions to the test.
 
 There are two things in particular that your test should check:
 
-...............................
 a. Trigger task instance state.
 ...............................
 Because trigger tasks run asynchronously, it is important to first verify that
@@ -279,7 +272,6 @@ Some examples:
    self.assertInstanceFailed('t_importBrowserMetadata#2', Timeout)
 
 
-..................................
 b. Effects from the trigger tasks.
 ..................................
 After checking that all of the trigger tasks finished (or failed) as expected,

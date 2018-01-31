@@ -29,7 +29,6 @@ object, with a couple of notable differences:
   for later reference.
 
 
------------------
 Context Variables
 -----------------
 Oftentimes, it is difficult to convey all of the desired information in a log
@@ -104,7 +103,6 @@ dict.
             ...
 
 
-~~~~~~~~~~~~~~~~~
 Exception Context
 ~~~~~~~~~~~~~~~~~
 As with log messages, you can also attach context values to exceptions that your
@@ -153,7 +151,6 @@ troubleshooting efforts.
 
 .. _logs-tracking-log-levels:
 
--------------------
 Tracking Log Levels
 -------------------
 The logger returned by :py:meth:`get_logger_context` also keeps track of the
@@ -168,7 +165,6 @@ finalize the session only if none of the task instances emitted log messages
 with ``WARNING`` or higher level.
 
 
-~~~~~~~~~~~~~~~~~~~~~~~
 Task Instance Log Level
 ~~~~~~~~~~~~~~~~~~~~~~~
 Once a task instance has finished running (successfully or otherwise), the max
@@ -189,7 +185,6 @@ log level emitted is stored in its :py:attr:`log_level` property:
 
 .. _logs-resolving:
 
-~~~~~~~~~~~~~~
 Resolving Logs
 ~~~~~~~~~~~~~~
 In some cases, it may be necessary to mark a task instance's logs as "resolved".

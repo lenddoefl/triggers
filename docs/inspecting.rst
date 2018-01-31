@@ -6,7 +6,7 @@ backend.  The storage backend is responsible for maintaining session state, but
 it also provides a number of methods and attributes that your application can
 inspect.
 
-------------------------
+
 What's In Session State?
 ------------------------
 Inside of a session's state are 3 objects:
@@ -18,7 +18,7 @@ Inside of a session's state are 3 objects:
 In general, you won't need to interact with these objects directly, but they can
 be useful for inspecting and troubleshooting sessions.
 
-------------------------
+
 Inspecting Session State
 ------------------------
 To inspect a session's state, your application will interact with the trigger
@@ -30,7 +30,7 @@ manager's storage backend.
    triggers, change task instance status, etc.), you do not need to create a
    trigger manager instance; you only need an instance of the storage backend.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Inspecting Task Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To inspect a trigger task's configuration, load it from ``tasks``:
@@ -42,7 +42,7 @@ To inspect a trigger task's configuration, load it from ``tasks``:
 In the above example, ``task`` is an instance of
 :py:class:`triggers.types.TaskConfig`.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Inspecting Instance Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To inspect a trigger instance configuration, load it from ``instances``:
@@ -69,7 +69,7 @@ In the above example, ``instance`` is an instance of
       >>> trigger_manager.storage.instances['t_importSubject']
       KeyError: 't_importSubject'
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Finding Instances By Trigger Task
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If you want to find all the instances for a particular task, use the
@@ -83,9 +83,9 @@ If you want to find all the instances for a particular task, use the
 In the above example, ``instances`` is a list of :py:class:`TaskInstance`
 objects.
 
+
 .. _inspecting-unresolved:
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Finding Unresolved Tasks and Instances
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 When inspecting the state of a session, one of the most critical pieces of
@@ -140,7 +140,6 @@ It is best explained using an example:
    >>> [<TaskInstance 't_importSubject#0'>]
 
 
-^^^^^^^^^^^^^^^^^^^^^^^^
 Getting the Full Picture
 ^^^^^^^^^^^^^^^^^^^^^^^^
 If you want to get a snapshot of the state of every task and instance,
@@ -160,7 +159,7 @@ invoke the ``debug_repr`` method:
    post a feature request on the `Triggers Framework Bug Tracker`_ so that we
    can take a look!
 
---------------
+
 Error Recovery
 --------------
 On occasion, a trigger task instance may fail (e.g., due to an uncaught
@@ -185,9 +184,9 @@ instance(s).
 
       pprint(failed_instance.metadata)
 
+
 .. _inspecting-replaying:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Replaying Failed Task Instances
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To replay a failed task invoke the trigger manager's
@@ -243,9 +242,9 @@ If necessary/desired, you may replay the instance with different trigger kwargs:
         replacement_kwargs,
       )
 
+
 .. _inspecting-skipping:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Skipping Failed Task Instances
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Sometimes there is just no way to recover a failed task instance, but you still

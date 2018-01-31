@@ -44,7 +44,7 @@ These are the possible status values:
    clause have fired.  The instance will remain in "unstarted" status until the
    remaining triggers have fired.
 
--------------
+
 Meta-Statuses
 -------------
 :py:class:`TaskInstance` also defines a few properties that can help your
@@ -101,8 +101,8 @@ application to make decisions based on an instance's status:
 
    Note that most of the time, an unresolved instance is not a bad thing.
 
-========================
+
 Checking Instance Status
-========================
+------------------------
 For more information about how to check an instance's status, see
 :doc:`inspecting`.

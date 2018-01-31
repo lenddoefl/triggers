@@ -3,6 +3,7 @@ Getting Started
 ===============
 Getting started with the Triggers framework requires a bit of planning.
 
+
 Step 1:  Define Session UIDs
 ----------------------------
 Sessions limit the context in which the Triggers framework operates.  This
@@ -230,6 +231,7 @@ fire.
    function and/or Django settings to create the trigger manager instance.
 
    See the :doc:`cookbook` for a sample implementation.
+
 
 Trigger Kwargs
 ~~~~~~~~~~~~~~

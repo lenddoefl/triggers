@@ -19,7 +19,7 @@ configuration.
      't_importDeviceMetadata':  {...},
    })
 
-------------------
+
 Task Configuration
 ------------------
 There are many directives you can specify to customize the behavior of each
@@ -45,12 +45,12 @@ You can "read" the configuration for the ``t_importResponses`` task as:
 **After** ``t_importSubject`` fires, **and every** time ``pageReceived`` fires,
 **run** the ``app.tasks.ImportResponses`` Celery task.
 
-~~~~~~~~~~~~~~~~~~~
+
 Required Directives
 ~~~~~~~~~~~~~~~~~~~
 The following directives must be provided in each task's configuration.
 
-^^^^^^^^^
+
 ``after``
 ^^^^^^^^^
 ``after`` is a list of strings that indicates which triggers must fire in order
@@ -99,7 +99,7 @@ finished successfully.
    usually expressed as a ``list`` in Python code, but you can use a ``set`` if
    you prefer.
 
-^^^^^^^
+
 ``run``
 ^^^^^^^
 ``run`` tells the trigger manager which Celery task to run once the trigger
@@ -129,7 +129,7 @@ As an example, to configure a trigger task to run the
 
    See :doc:`tasks` for more information.
 
-~~~~~~~~~~~~~~~~~~~
+
 Optional Directives
 ~~~~~~~~~~~~~~~~~~~
 The following optional directives allow you to further customize the behavior of
@@ -138,7 +138,6 @@ your trigger tasks.
 
 .. _configuration-and-every:
 
-^^^^^^^^^^^^
 ``andEvery``
 ^^^^^^^^^^^^
 By default, every trigger task is "one shot".  That is, it will only run once,
@@ -169,7 +168,7 @@ The configuration might look like this:
 Using the above configuration, a new instance of ``t_importResponses`` will be
 created, but **they will only run after the t_importSubject task finishes**.
 
-^^^^^^^^^^
+
 ``unless``
 ^^^^^^^^^^
 ``unless`` is the opposite of ``after``.  It defines a condition that will
@@ -209,7 +208,7 @@ If ``isEmbeddedApplication`` fires before ``t_importSubject`` and/or
 
    Watch out for race conditions!
 
-^^^^^^^^^^^^^^
+
 ``withParams``
 ^^^^^^^^^^^^^^
 When the trigger manager executes a task, it will provide the kwargs that were
@@ -263,7 +262,7 @@ with the model name ``'Psych 01'`` so that it knows which model to load.
         },
       })
 
-^^^^^^^^^
+
 ``using``
 ^^^^^^^^^
 By default, the trigger manager uses Celery to execute trigger tasks (except
@@ -294,7 +293,7 @@ task runner, we might use the following configuration:
    To change the default task runner globally, override
    :py:data:`triggers.runners.DEFAULT_TASK_RUNNER`.
 
-~~~~~~~~~~~~~~~~~
+
 Custom Directives
 ~~~~~~~~~~~~~~~~~
 You can add any additional directives that you want; each will be added to the

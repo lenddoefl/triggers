@@ -85,9 +85,9 @@ The ``ImportSubject`` task's ``_run`` method (note the leading underscore) does
 3. Return the resulting ID value so that when the task cascades, other tasks
    will be able to use it (more on this later).
 
+
 .. _task_context:
 
-------------
 Task Context
 ------------
 The only argument passed to the ``_run`` method is a
@@ -96,14 +96,14 @@ The only argument passed to the ``_run`` method is a
 The :py:class:`TaskContext` provides everything that your task will need to
 interact with the Triggers framework infrastructure:
 
-^^^^^^^^^^^^^^^
+
 Trigger Manager
 ^^^^^^^^^^^^^^^
 ``context.manager`` is a trigger manager instance that you can leverage in your
 task to interact with the Triggers framework.  For example, you can use
 ``context.manager`` to fire additional triggers as your task runs.
 
-^^^^^^^^^^^^^^
+
 Trigger Kwargs
 ^^^^^^^^^^^^^^
 As noted above, whenever the application fires a trigger, it can attach optional
@@ -152,7 +152,6 @@ alternate approach that uses ``context.filter_kwargs()`` instead:
 
 .. _tasks-cascading:
 
----------
 Cascading
 ---------
 When the Celery task finishes successfully, the trigger manager will cause a
@@ -202,7 +201,7 @@ When this task finishes, the trigger manager will cascade like this:
      trigger_kwargs = {'subjectId': new_subject.pk},
    )
 
--------
+
 Logging
 -------
 If your Celery task needs to use a logger, consider using
@@ -213,7 +212,7 @@ integrate closely with the trigger manager.
 
 See :doc:`logs` for more information.
 
---------
+
 Retrying
 --------
 To retry a Celery task mid-execution, the method looks similar to a regular
@@ -246,6 +245,7 @@ Note that this retry mechanism works a little differently from Celery's retry:
 
 If the Celery task exceeds its ``max_retries``, then it will raise a
 :py:class:`triggers.task.MaxRetriesExceeded`.
+
 
 .. _Filters library: https://filters.readthedocs.io/
 .. _FilterMappers: https://filters.readthedocs.io/en/latest/complex_filters.html#working-with-mappings

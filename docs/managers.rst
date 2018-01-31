@@ -16,7 +16,7 @@ trigger manager is fairly straightforward:
 
 Where ``storage_backend`` is a :doc:`storage backend <storage>`.
 
----------------------------------
+
 Interacting with Trigger Managers
 ---------------------------------
 Trigger managers provide the following methods:
@@ -61,7 +61,7 @@ Trigger managers provide the following methods:
   Given a task instance, updates its metadata so that its
   :ref:`log messages are resolved <logs-resolving>`.
 
--------------------------------
+
 Writing Custom Trigger Managers
 -------------------------------
 You can customize the behavior of the trigger manager(s) that your application
@@ -70,7 +70,7 @@ interacts with.
 For example, you can write a custom trigger manager that contains additional
 logic to :ref:`finalize sessions <cookbook-finalizing>`.
 
-~~~~~
+
 Hooks
 ~~~~~
 Whenever the base trigger manager completes certain actions, it invokes a
@@ -110,7 +110,6 @@ The following hooks are supported:
 
 .. _managers-registering:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Registering Your Trigger Manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Because of the way :doc:`trigger tasks <tasks>` work, you must register your

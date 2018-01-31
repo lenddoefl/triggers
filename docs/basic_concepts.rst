@@ -4,8 +4,9 @@ Basic Concepts
 The Triggers framework is loosely based on the `Observer pattern`_, so many of
 the concepts described here might look familiar.
 
+
 Triggers
-========
+--------
 A trigger is very similar to an event in the `Observer pattern`_.  Essentially,
 it is just a string/identifier, with some optional metadata attached to it.
 
@@ -35,8 +36,9 @@ In this example, the ``module1Received`` trigger has meaning because your
 application will only fire it once it finishes processing the data from module
 1.
 
+
 Trigger Kwargs
---------------
+~~~~~~~~~~~~~~
 When your application fires a trigger, it can also attach some kwargs to it.
 Any task that runs in response to this trigger will have access to these kwargs,
 so you can use this to provide additional metadata that a task might need.
@@ -73,7 +75,7 @@ database.
 
 
 Tasks
-=====
+-----
 Firing triggers is fun and all, but the whole point here is to execute Celery
 tasks in response to those triggers!
 
@@ -85,8 +87,9 @@ A trigger task acts like a wrapper for a Celery task:
 - The trigger task defines the conditions that will cause the Celery task to
   get executed.
 
+
 Task Configurations
--------------------
+~~~~~~~~~~~~~~~~~~~
 Here's an example trigger configuration that defines two tasks, named
 `t_createApplicant` and `t_computeScore`:
 
@@ -143,8 +146,9 @@ Each task instance is named after its task configuration, with an incrementing
 sequence number (e.g., ``t_createApplicant#0``,
 ``t_computeScore#0``, etc.).
 
+
 Sessions
-========
+--------
 A session acts as a container for triggers and trigger task instances.  This
 allows you to maintain multiple states in isolation from each other.
 
@@ -152,14 +156,16 @@ For example, if you maintain a survey application, each survey would have its
 own session.  This way, any triggers fired while processing a particular survey
 would not interfere with any other surveys.
 
+
 Session UIDs
-------------
+~~~~~~~~~~~~
 Each session should have a unique identifier (UID).  This value is provided to
 the storage backend at initialization, so that the trigger manager can load the
 saved state for that session.
 
+
 Trigger Managers
-================
+----------------
 The trigger manager acts as the controller for the Triggers framework.  It is
 responsible for firing triggers, managing trigger task instances, and so on.
 
@@ -179,6 +185,7 @@ of the trigger manager class, like this:
    # Fire triggers.
    trigger_manager.fire('ventCoreFrogBlasted')
 
+
 Storage Backends
 ----------------
 To maintain state across multiple processes, the trigger manager relies on a
@@ -189,6 +196,7 @@ The storage backend is responsible for loading and storing the session state.
 The Triggers framework comes bundled with a cache storage backend, which stores
 session state using Django's cache.  Additional backends will be added in future
 versions of the library.
+
 
 .. _observer pattern: https://en.wikipedia.org/wiki/Observer_pattern
 .. _task_serializer: http://docs.celeryproject.org/en/latest/userguide/calling.html#serializers
