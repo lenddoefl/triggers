@@ -263,6 +263,8 @@ with the model name ``'Psych 01'`` so that it knows which model to load.
       })
 
 
+.. _configuration-using:
+
 ``using``
 ^^^^^^^^^
 By default, the trigger manager uses Celery to execute trigger tasks (except

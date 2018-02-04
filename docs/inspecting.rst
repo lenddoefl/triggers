@@ -109,7 +109,7 @@ It is best explained using an example:
 
    >>> from uuid import uuid4
    >>> from triggers import TriggerManager
-   >>> from triggers.storage_backends.cache import CacheStorageBackend
+   >>> from triggers.storages.cache import CacheStorageBackend
 
    >>> trigger_manager =\
    ...   TriggerManager(CacheStorageBackend(uuid4().hex))

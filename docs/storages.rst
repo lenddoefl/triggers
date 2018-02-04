@@ -100,7 +100,15 @@ Writing Your Own Storage Backend
 To create your own storage backend, you only need to define methods to load and
 save the session data; the base class will take care of everything else for you.
 
-Your backend must implement the following methods:
+Your backend must extend the
+:py:class:`triggers.storages.base.BaseTriggerStorage` class and implement the
+following attributes/methods:
+
+:py:attr:`name: Text`
+   A unique identifier for your storage backend.
+
+   Generally this matches the name of the storage's entry point in your
+   project's ``setup.py`` file (see below).
 
 :py:attr:`_load_from_backend(self)`
    Given ``self.uid``, loads the corresponding session data from the persistence
@@ -133,7 +141,7 @@ Your backend must implement the following methods:
       method.
 
 For more information and examples, look at the implementation of
-:py:class:`triggers.storage_backends.cache.CacheStorageBackend`.
+:py:class:`triggers.storages.cache.CacheStorageBackend`.
 
 
 Registering Your Storage Backend
@@ -141,8 +149,8 @@ Registering Your Storage Backend
 :ref:`As with trigger managers <managers-registering>`, you must register your
 custom storage backend before it can be used.
 
-To do this, define a ``triggers.storage_backends`` `entry point`_ in your
-project's ``setup.py`` file:
+To do this, define a ``triggers.storages`` `entry point`_ in your project's
+``setup.py`` file:
 
 .. code-block:: python
 
@@ -152,7 +160,7 @@ project's ``setup.py`` file:
      ...
 
      entry_points = {
-       'triggers.storage_backends': [
+       'triggers.storages': [
          'custom_storage = app.triggers:CustomStorageBackend',
        ],
      },

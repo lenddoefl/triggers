@@ -143,6 +143,8 @@ For example:
    self.manager.fire('questionnaireComplete')
 
 
+.. _testing-wait-for-tasks:
+
 3. Wait for tasks to complete.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 During unit tests, the trigger manager will automatically use

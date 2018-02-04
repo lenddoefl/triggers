@@ -131,7 +131,7 @@ section.
 
    In this way, you can "chain" trigger tasks together.
 
-   We will cover cascading in more detail in :doc:`/configuration`.
+   We will cover cascading in more detail in :doc:`tasks`.
 
 
 .. _basic-concepts-task-instances:

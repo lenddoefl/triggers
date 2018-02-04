@@ -11,7 +11,7 @@
    logs
    testing
    managers
-   storage
+   storages
    runners
    cookbook
 

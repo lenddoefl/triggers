@@ -2,7 +2,7 @@
 Trigger Managers
 ================
 The trigger manager acts as the controller for the Triggers framework.  Working
-in conjunction with a :doc:`storage backend <storage>`, it provides an
+in conjunction with a :doc:`storage backend <storages>`, it provides an
 interface for effecting changes on a triggers session.
 
 From the :doc:`basic_concepts` documentation, you can see that initializing a
@@ -14,7 +14,7 @@ trigger manager is fairly straightforward:
 
    trigger_manager = TriggerManager(storage_backend)
 
-Where ``storage_backend`` is a :doc:`storage backend <storage>`.
+Where ``storage_backend`` is a :doc:`storage backend <storages>`.
 
 
 Interacting with Trigger Managers
@@ -69,6 +69,18 @@ interacts with.
 
 For example, you can write a custom trigger manager that contains additional
 logic to :ref:`finalize sessions <cookbook-finalizing>`.
+
+Your trigger manager must extend the :py:class:`triggers.manager.TriggerManager`
+class.
+
+There is only one attribute that must be implemented in order to create a
+custom trigger manager:
+
+:py:attr:`name: Text`
+   A unique identifier for your trigger manager.
+
+   Generally this matches the name of the trigger manager's entry point in your
+   project's ``setup.py`` file (see below).
 
 
 Hooks
