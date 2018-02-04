@@ -63,17 +63,17 @@ setup(
     },
 
     entry_points = {
-        'triggers.storage_backends': [
-            'cache=triggers.storage_backends.cache:CacheStorageBackend',
-        ],
-
         'triggers.managers': [
             'default=triggers.manager:TriggerManager',
         ],
 
-        'triggers.task_runners': [
+        'triggers.runners': [
             'celery=triggers.runners:CeleryTaskRunner',
             'threading=triggers.runners:ThreadingTaskRunner',
+        ],
+
+        'triggers.storages': [
+            'cache=triggers.storages.cache:CacheStorageBackend',
         ],
     },
 

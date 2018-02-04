@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, print_function, \
 from abc import ABCMeta, abstractmethod as abstract_method
 from distutils.version import LooseVersion
 from threading import Thread, current_thread
-from typing import Any, Dict, List, Text, Union
+from typing import Any, Dict, List, NoReturn, Text, Union
 from uuid import uuid4
 
 from celery import current_app
@@ -14,13 +14,12 @@ from celery.result import AsyncResult, EagerResult
 from celery.task import Task
 from class_registry import EntryPointClassRegistry
 from django import get_version
-from django.core.exceptions import ImproperlyConfigured
 from six import string_types, text_type, with_metaclass
 
 from triggers.importlib import dl
 from triggers.itertools import merge_dict_recursive
 from triggers.manager import TriggerManager, trigger_managers
-from triggers.storage_backends.base import storage_backends
+from triggers.storages.base import storage_backends
 from triggers.task import TriggerTask
 from triggers.types import TaskInstance
 
@@ -57,7 +56,7 @@ class BaseTaskRunner(with_metaclass(ABCMeta)):
 
     @abstract_method
     def run(self, manager, task_instance):
-        # type: (TriggerManager, TaskInstance) -> None
+        # type: (TriggerManager, TaskInstance) -> NoReturn
         """
         Runs the specified task.
 
@@ -71,18 +70,52 @@ class BaseTaskRunner(with_metaclass(ABCMeta)):
             'Not implemented in {cls}.'.format(cls=type(self).__name__),
         )
 
-    @abstract_method
     def resolve(self, target):
+        # type: (Any) -> Union[Task, TriggerTask]
         """
         Resolves a value into a runnable task.
         """
-        raise NotImplementedError(
-            'Not implemented in {cls}.'.format(cls=type(self).__name__),
-        )
+        # ``target`` usually comes from ``TaskInstance.config.run``
+        # (i.e., it's the name of a Celery task).
+        if isinstance(target, string_types):
+            target = resolve_celery_task(target)
+
+        if isinstance(target, type) and issubclass(target, TriggerTask):
+            target = target()
+
+        if not isinstance(target, TriggerTask):
+            # In theory, we could convert any callable into a Celery
+            # task, but it would cause side effects that are a bit
+            # tricky to reverse (e.g., registering phantom tasks in
+            # ``current_app``), so instead we will treat this as an
+            # exceptional case.
+
+            # But, just for future reference...
+            # target = current_app.task(task_body(target))
+
+            raise TypeError(
+                '{runner} is not compatible with this task type '
+                '(expected {expected}, actual {actual}).'.format(
+                    actual      = type(target).__name__,
+                    expected    = TriggerTask.__name__,
+                    runner      = type(self).__name__,
+                ),
+            )
+
+        # Ensure that the task is bound to the current app.  Normally
+        # Celery would handle this for us, but since we're bypassing
+        # Celery here....
+        #
+        # Note that we only do this if the task isn't already bound,
+        # just in case the task's ``on_bound`` method isn't idempotent.
+        if not target.__bound__:
+            target.bind(current_app)
+
+        return target
 
     @staticmethod
     def _prepare_task_kwargs(manager, task_instance):
-        # type: (TriggerManager, TaskInstance) -> dict
+        # type: (TriggerManager, TaskInstance) -> Dict
         """
         Prepares kwargs that will be passed to the task.
         """
@@ -103,7 +136,7 @@ class BaseTaskRunner(with_metaclass(ABCMeta)):
         except AttributeError:
             raise RuntimeError(
                 'Unable to find `{type}.{attr}`; try using '
-                '`{mod}`.storage_backends to load the storage backend.'.format(
+                '`{mod}`.storages to load the storage backend.'.format(
                     attr    = storage_backends.attr_name,
                     mod     = storage_backends.__module__,
                     type    = type(manager.storage).__name__,
@@ -202,7 +235,7 @@ class CeleryTaskRunner(BaseTaskRunner):
     name = 'celery'
 
     def run(self, manager, task_instance):
-        # type: (TriggerManager, TaskInstance) -> None
+        # type: (TriggerManager, TaskInstance) -> NoReturn
         # If Celery is operating in eager mode, a deadlock will occur
         # when the Celery task attempts to acquire lock on the
         # storage backend.
@@ -278,6 +311,15 @@ class ThreadingTaskRunner(BaseTaskRunner):
     """
     name = 'threading'
 
+    allow_python_path_target = False
+    """
+    Whether to allow :py:meth:`resolve` to try to interpret incoming
+    values as Python paths.
+    
+    For security reasons, this should be set to ``False``, but it may be
+    useful/safe to enable in some cases (e.g., during unit tests).
+    """
+
     @classmethod
     def join_all(cls):
         """
@@ -309,7 +351,7 @@ class ThreadingTaskRunner(BaseTaskRunner):
         return
 
     def run(self, manager, task_instance):
-        # type: (TriggerManager, TaskInstance) -> None
+        # type: (TriggerManager, TaskInstance) -> NoReturn
         task = self.resolve(task_instance.config.run)
 
         #
@@ -402,44 +444,20 @@ class ThreadingTaskRunner(BaseTaskRunner):
         thread.start()
 
     def resolve(self, target):
-        # type: (Any) -> Union[TriggerTask, Task]
+        # type: (Any) -> Union[Task, TriggerTask]
+        # This is basically the same as the superclass method, except
+        # that it will conditionally interpret ``target`` as a Python
+        # path.
         if isinstance(target, string_types):
             try:
-                target = dl(target)
-            except ImproperlyConfigured as e:
-                # Maybe instead of a classpath, it's the name of a
-                # registered Celery task.
-                try:
-                    target = resolve_celery_task(target)
-                except ValueError:
-                    raise e
+                target = resolve_celery_task(target)
+            except ValueError:
+                if self.allow_python_path_target:
+                    target = dl(target)
+                else:
+                    raise
 
-        if isinstance(target, type) and issubclass(target, TriggerTask):
-            target = target()
-
-        if not isinstance(target, TriggerTask):
-            # This could cause side effects.
-            # target = current_app.task(task_body(target))
-
-            raise TypeError(
-                '{runner} is only compatible with celery tasks '
-                '(expected {expected}, actual {actual}).'.format(
-                    actual      = type(target).__name__,
-                    expected    = TriggerTask.__name__,
-                    runner      = type(self).__name__,
-                ),
-            )
-
-        # Ensure that the task is bound to the current app (normally
-        # Celery would handle this for us, but since we're bypassing
-        # Celery here....).
-        #
-        # Note that we only do this if the task isn't already bound,
-        # just in case the task's ``on_bound`` method isn't idempotent.
-        if not target.__bound__:
-            target.bind(current_app)
-
-        return target
+        return super(ThreadingTaskRunner, self).resolve(target)
 
 
 _threads = [] # type: List[Thread]
@@ -451,7 +469,7 @@ DEFAULT_TASK_RUNNER = CeleryTaskRunner
 task_runners =\
     EntryPointClassRegistry(
         attr_name   = 'triggers__registry_key',
-        group       = 'triggers.task_runners',
+        group       = 'triggers.runners',
     ) # type: Union[EntryPointClassRegistry, Dict[Text, BaseTaskRunner]]
 """
 Registry of task runners available to the trigger manager.

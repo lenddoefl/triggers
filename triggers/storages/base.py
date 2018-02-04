@@ -15,13 +15,13 @@ from triggers.locking import Lockable
 from triggers.types import TaskConfig, TaskInstance
 
 __all__ = [
+    'BaseTriggerStorage',
     'TaskInstanceCollection',
-    'TriggerStorageBackend',
     'storage_backends',
 ]
 
 
-class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
+class BaseTriggerStorage(with_metaclass(ABCMeta, Lockable)):
     """
     Base functionality for trigger storage backends.
     """
@@ -31,7 +31,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
     when running celery tasks.
 
     References:
-      - :py:data:`storage_backends`
+      - :py:data:`storages`
     """
 
     def __init__(self, uid):
@@ -41,7 +41,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
             Identifier that the backend can use to load the
             corresponding data.
         """
-        super(TriggerStorageBackend, self).__init__()
+        super(BaseTriggerStorage, self).__init__()
 
         self.uid = uid # type: Text
 
@@ -212,7 +212,7 @@ class TriggerStorageBackend(with_metaclass(ABCMeta, Lockable)):
         if self.has_lock:
             yield self
         else:
-            with super(TriggerStorageBackend, self).acquire_lock(ttl, block):
+            with super(BaseTriggerStorage, self).acquire_lock(ttl, block):
                 # Ensure that we reload data from the backend, just in
                 # case another process/thread made changes while we
                 # weren't looking.
@@ -535,8 +535,8 @@ class TaskInstanceCollection(dict):
 storage_backends =\
     EntryPointClassRegistry(
         attr_name   = 'triggers__registry_key',
-        group       = 'triggers.storage_backends',
-    ) # type: Union[EntryPointClassRegistry, Dict[Text, TriggerStorageBackend]]
+        group       = 'triggers.storages',
+    ) # type: Union[EntryPointClassRegistry, Dict[Text, BaseTriggerStorage]]
 """
 Registry of storage backends available to the triggers framework.
 """

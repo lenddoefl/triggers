@@ -117,8 +117,18 @@ class TriggerManagerTestCaseMixin(with_metaclass(ABCMeta, TestCase)):
         # easier to wait for a thread to finish than to wait for a
         # Celery worker to (maybe) finish and publish to the results
         # backend.
-        with AttrPatcher(runners, DEFAULT_TASK_RUNNER=runners.ThreadingTaskRunner):
-            super(TriggerManagerTestCaseMixin, self).run(result)
+        with AttrPatcher(
+                runners,
+                DEFAULT_TASK_RUNNER = runners.ThreadingTaskRunner,
+        ):
+            # Allow unit tests to configure tasks using Python path.
+            # This will let us inject one-off tasks into the trigger
+            # configuration, so that we can simulate edge cases.
+            with AttrPatcher(
+                    runners.ThreadingTaskRunner,
+                    allow_python_path_target = True,
+            ):
+                super(TriggerManagerTestCaseMixin, self).run(result)
 
     def assertInstanceStatus(self, instance_name, expected_status):
         # type: (Text, Text) -> None

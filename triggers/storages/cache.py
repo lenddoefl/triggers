@@ -8,14 +8,14 @@ from django.core.cache import BaseCache, DEFAULT_CACHE_ALIAS
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
 from triggers.locking import resolve_cache
-from triggers.storage_backends.base import TriggerStorageBackend
+from triggers.storages.base import BaseTriggerStorage
 
 __all__ = [
     'CacheStorageBackend',
 ]
 
 
-class CacheStorageBackend(TriggerStorageBackend):
+class CacheStorageBackend(BaseTriggerStorage):
     """
     Uses the Django cache as a storage backend for TriggerManager.
     """

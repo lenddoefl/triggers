@@ -7,7 +7,7 @@ from unittest import TestCase
 from triggers.manager import TriggerManager
 from triggers.patcher import AttrPatcher
 from triggers.runners import ThreadingTaskRunner
-from triggers.storage_backends.cache import CacheStorageBackend
+from triggers.storages.cache import CacheStorageBackend
 from triggers.task import MaxRetriesExceeded
 from triggers.testing import SelfRetryingTask, SelfSkippingTask, \
     TriggerManagerTestCaseMixin

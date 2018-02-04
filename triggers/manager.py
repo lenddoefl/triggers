@@ -8,7 +8,7 @@ from typing import Dict, List, Mapping, Optional, Text, Union
 from class_registry import EntryPointClassRegistry
 from six import itervalues
 
-from triggers.storage_backends.base import TriggerStorageBackend
+from triggers.storages.base import BaseTriggerStorage
 from triggers.types import TaskConfig, TaskInstance
 
 __all__ = [
@@ -37,7 +37,7 @@ class TriggerManager(object):
     """
 
     def __init__(self, storage):
-        # type: (TriggerStorageBackend) -> None
+        # type: (BaseTriggerStorage) -> None
         """
         :param storage:
             Storage backend for configuration, status, etc.
@@ -45,6 +45,57 @@ class TriggerManager(object):
         super(TriggerManager, self).__init__()
 
         self.storage = storage
+
+    @property
+    def default_task_runner_name(self):
+        # type: () -> Text
+        """
+        Returns the name of the default task runner that will be used to
+        execute task instances.
+
+        .. note::
+            This property only determines the *default* task runner
+            type; if the task configuration contains a ``using`` clause,
+            then that will be used instead.
+
+        .. important::
+            To change the default task runner, you must create a
+            subclass and override this method.
+
+            When the task instance runs, it will create a new trigger
+            manager instance, with the same type as the one that
+            scheduled the instance for execution.
+
+            This is super important if you want cascades to use the
+            correct runner!
+
+            The following example is incorrect; the task instance will
+            use the wrong task runner to handle cascades:
+
+            .. code-block:: python
+
+                trigger_manager = TriggerManager(...)
+                trigger_manager.default_task_runner_name = 'custom'
+
+                trigger_manager.fire(...)
+
+            This is the correct way to customize the default task
+            runner:
+
+            .. code-block:: python
+
+                class CustomTriggerManager(TriggerManager):
+                    default_task_runner_name = 'custom'
+
+                trigger_manager = CustomTriggerManager(...)
+                trigger_manager.fire(...)
+
+            .. note::
+                Don't forget to register your custom trigger manager in
+                your project's ``trigger.managers`` entry points!
+        """
+        from triggers.runners import DEFAULT_TASK_RUNNER
+        return DEFAULT_TASK_RUNNER.name
 
     def update_configuration(self, configuration):
         # type: (Mapping[Text, Mapping]) -> None
@@ -74,7 +125,7 @@ class TriggerManager(object):
             In the event of a conflict, the trigger tasks in this dict
             will replace the existing ones with the same name(s).
         """
-        with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
+        with self.storage.acquire_lock() as writable_storage: # type: BaseTriggerStorage
             # Note that we only update the configuration; we do not
             # attempt to apply previously-fired triggers, create
             # instances, etc.
@@ -117,7 +168,7 @@ class TriggerManager(object):
         # Apply kwargs and identify tasks that are ready to fire.
         # Do this with the storage backend locked to avoid shenanigans
         # when multiple processes are operating on the same UID.
-        with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
+        with self.storage.acquire_lock() as writable_storage: # type: BaseTriggerStorage
             # Keep track of kwargs for each fired trigger.  In
             # particular, this allows us to correctly populate
             # ``kwargs`` when creating new instances for tasks that
@@ -295,7 +346,7 @@ class TriggerManager(object):
             - :py:class:`ValueError` if the corresponding instance is
               not replayable.
         """
-        with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
+        with self.storage.acquire_lock() as writable_storage: # type: BaseTriggerStorage
             if not isinstance(failed_instance, TaskInstance):
                 failed_instance = writable_storage[failed_instance]
 
@@ -333,7 +384,7 @@ class TriggerManager(object):
         This method does not change the instance's status; use
         :py:meth:`update_instance_status` for that.
         """
-        with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
+        with self.storage.acquire_lock() as writable_storage: # type: BaseTriggerStorage
             if not isinstance(task_instance, TaskInstance):
                 task_instance = writable_storage[task_instance]
 
@@ -386,7 +437,7 @@ class TriggerManager(object):
             the ``task_instance`` that was passed in (due to the way
             acquiring lock works).
         """
-        with self.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
+        with self.storage.acquire_lock() as writable_storage: # type: BaseTriggerStorage
             # Acquiring lock purges the local cache, so we need to
             # reload the instance, to ensure we aren't working with a
             # stale object.
@@ -422,10 +473,10 @@ class TriggerManager(object):
         """
         Schedules a single task instance for execution.
         """
-        from triggers.runners import task_runners, DEFAULT_TASK_RUNNER
+        from triggers.runners import task_runners
         runner =\
             task_runners.get(
-                task_instance.config.using or DEFAULT_TASK_RUNNER.name,
+                task_instance.config.using or self.default_task_runner_name,
             )
 
         #
@@ -438,7 +489,8 @@ class TriggerManager(object):
         #
         # Technically this shouldn't be necessary, since the manager
         # should already have the lock when it invokes this method,
-        # but ``_schedule_task`` shouldn't have to know about that!
+        # but :py:meth:`_schedule_task` shouldn't have to know about
+        # that!
         #
         with self.storage.acquire_lock():
             runner.run(self, task_instance)

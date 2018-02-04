@@ -4,11 +4,10 @@ from __future__ import absolute_import, division, print_function, \
 
 from unittest import TestCase
 
-from triggers import TriggerStorageBackend
 from triggers.manager import TriggerManager, trigger_managers
 from triggers.runners import ThreadingTaskRunner
-from triggers.storage_backends.base import storage_backends
-from triggers.storage_backends.cache import CacheStorageBackend
+from triggers.storages.base import BaseTriggerStorage, storage_backends
+from triggers.storages.cache import CacheStorageBackend
 from triggers.testing import DevNullTask, TriggerManagerTestCaseMixin
 
 __all__ = [
@@ -195,7 +194,7 @@ class TriggerManagerUnlessTestCase(TriggerManagerTestCaseMixin, TestCase):
         self.assertUnresolvedInstances(['t_alpha#0'])
 
         # Create a copy of the instance.
-        with self.manager.storage.acquire_lock() as writable_storage: # type: TriggerStorageBackend
+        with self.manager.storage.acquire_lock() as writable_storage: # type: BaseTriggerStorage
             writable_storage.clone_instance(writable_storage['t_alpha#0'])
             writable_storage.save()
 

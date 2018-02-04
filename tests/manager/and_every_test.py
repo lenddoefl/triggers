@@ -6,8 +6,8 @@ from unittest import TestCase
 
 from triggers.manager import TriggerManager, trigger_managers
 from triggers.runners import ThreadingTaskRunner
-from triggers.storage_backends.base import storage_backends
-from triggers.storage_backends.cache import CacheStorageBackend
+from triggers.storages.base import storage_backends
+from triggers.storages.cache import CacheStorageBackend
 from triggers.testing import PassThruTask, TriggerManagerTestCaseMixin
 
 __all__ = [

@@ -20,7 +20,7 @@ from triggers.exceptions import with_context
 from triggers.logging.handlers import LogLevelHandler
 from triggers.logging.loggers import LocalLogger, LoggerAdapter
 from triggers.manager import TriggerManager, trigger_managers
-from triggers.storage_backends.base import storage_backends
+from triggers.storages.base import storage_backends
 from triggers.types import TaskInstance
 
 __all__ = [
