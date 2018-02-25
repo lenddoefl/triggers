@@ -80,7 +80,58 @@ storage backend that your application uses, without having to rewrite any logic.
 
 .. _cookbook-finalizing:
 
-- finalizing a session
+Finalizing a Session
+--------------------
+In many cases, it is useful to schedule trigger tasks to run when everything
+else is finished.
+
+For example, we may want to have our questionnaire application set a status flag
+in the database once the questionnaire is 100% complete and all of the other
+trigger tasks have finished successfully.
+
+To make this work, we will define a new trigger called ``sessionFinalized`` that
+fires when all of the trigger tasks in a session have finished running.
+
+We can detect that a trigger task has finished running by waiting for its
+:ref:`cascade <tasks-cascading>`; that is, we can perform the "is session
+finalized" check after each trigger fires.
+
+To accomplish this, we must create our own :doc:`trigger manager <managers>` and
+override its :py:meth:`_post_fire` hook.
+
+We will also take advantage of the trigger manager's ability to
+:ref:`find unresolved tasks <inspecting-unresolved>`, so that we can determine
+if there are any tasks waiting to run.
+
+The end result looks like this:
+
+.. code-block:: python
+
+   class FinalizingTriggerManager(TriggerManager):
+     TRIGGER_SESSION_FINALIZED = "sessionFinalized"
+
+     def _post_fire(self, trigger_name, tasks_scheduled):
+       # Prevent infinite recursion.
+       if trigger_name == self.TRIGGER_SESSION_FINALIZED:
+         return
+
+       # A session can only be finalized once.
+       if self.TRIGGER_SESSION_FINALIZED in self.storage.latest_kwargs:
+         return
+
+       # Check for any unresolved tasks...
+       for config in self.get_unresolved_tasks():
+         # ... ignoring any that are waiting for session finalized.
+         if self.TRIGGER_SESSION_FINALIZED not in config.after:
+           return
+
+       # If we get here, we are ready to finalize the session.
+       self.fire(self.TRIGGER_SESSION_FINALIZED)
+
+
+.. important::
+   Don't forget to :ref:`register your trigger manager <managers-registering>`!
+
 - namespaced session uids
   .. e.g., want to schedule trigger tasks across multiple related sessions
 
