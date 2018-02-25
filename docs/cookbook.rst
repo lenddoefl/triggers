@@ -132,9 +132,93 @@ The end result looks like this:
 .. important::
    Don't forget to :ref:`register your trigger manager <managers-registering>`!
 
-- namespaced session uids
-  .. e.g., want to schedule trigger tasks across multiple related sessions
 
+Namespaced Session UIDs
+-----------------------
+Suppose you have a set of related triggers sessions, and you want to schedule
+some tasks to run in a "super session" of sorts.
+
+For example, let's suppose that our questionnaire application has two different
+questionnaires:  "Flora" and "Fauna".  We would like to execute a trigger task
+after the applicant completes page 3 of the Flora questionnaire and page 6 of
+the Fauna questionnaire.  But, we can't predict what order these events will
+occur.
+
+To accomplish this, we can create a "namespaced session UID" for the applicant.
+When the application is processing responses from the applicant's questionnaire,
+it will actually create *two* trigger managers, each with a separate UID:
+
+.. code-block:: python
+
+   from my_app.models import Questionnaire
+
+   def start_questionnaire(request):
+     """
+     Django view that is called when the user clicks the "start" button
+     on a questionnaire.
+     """
+     questionnaire = get_object_or_404(
+       klass = Questionnaire,
+       pk    = request.POST["questionnaire_id"],
+     )
+
+     # Prepare our regular triggers session for the questionnaire.
+     trigger_manager = TriggerManager(...)
+     trigger_manager.update_configuration(...)
+
+     # Prepare our "super session", which will maintain state across
+     # multiple questionnaires.
+     #
+     # Note that the UID is tied to the applicant, not a particular
+     # questionnaire.  We also add a prefix, to avoid conflicts with
+     # regular trigger session UIDs.
+     super_trigger_manager = TriggerManager(
+       storage = CacheStorageBackend(
+         uid = 'applicant:{}'.format(request.session.applicant_id),
+       ),
+     )
+
+     super_trigger_manager.update_configuration({
+       # This task will run after the applicant completes page 3 in the
+       # Flora questionnaire, and page 6 in the Fauna questionnaire.
+       't_compareResponses': {
+         'after': ['flora_page3', 'fauna_page6'],
+         'run': CompareResponses.name,
+       },
+     })
+
+   def responses(request):
+     """
+     Django view that processes a page of response data from
+     the client.
+     """
+     questionnaire = get_object_or_404(
+       klass = Questionnaire,
+       pk    = request.POST["questionnaire_id"],
+     )
+
+     responses_form = QuestionnaireResponsesForm(request.POST)
+     if responses_form.is_valid():
+       # Regular triggers session for the questionnaire.
+       trigger_manager = TriggerManager(...)
+       trigger_manager.fire(...)
+
+       # Fire triggers for "super session".
+       super_trigger_manager = TriggerManager(
+       storage = CacheStorageBackend(
+           uid = 'applicant:{}'.format(request.session.applicant_id),
+         ),
+       )
+
+       super_trigger_manager.fire(
+         # E.g., "fauna_page3", etc.
+         trigger_name = '{}_page{}'.format(
+           questionnaire.name,
+           responses_form.cleaned_data['page_number'],
+         ),
+
+         trigger_kwargs = {'responses': responses_form.cleaned_data},
+       )
 
 .. _ClassRegistry: https://pypi.python.org/pypi/class-registry
 .. _setup.py: https://github.com/eflglobal/triggers/blob/develop/setup.py
