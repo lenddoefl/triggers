@@ -250,7 +250,7 @@ Here's an example of how our questionnaire application might fire the
      the client.
      """
      responses_form = QuestionnaireResponsesForm(request.POST)
-     if responses.is_valid():
+     if responses_form.is_valid():
        trigger_manager = TriggerManager(
          storage = CacheStorageBackend(
            uid      = responses_form.cleaned_data['questionnaire_id'],
